@@ -1,0 +1,143 @@
+-The first column seems to be a meaningless constant that is the same throughout the file. Ignore it.
+
+-The second column corresponds to the gameplay round and is prefixed with a |. There doesn't seem to be much difference between questions of different rounds, so we could potentially ignore this in my implementation.
+
+-The third column is a question identifier. I could probably skip this one too in favor of an auto-incrementing _id primary key. I will likely want to include an enum field for the question source though (1, 2, Dream Home, Holiday Edition, etc.) so that question packs can be toggled in the options menu.
+
+-The fourth column is the question text. It gets wrapped in quotes if it contains a comma in order to identify said comma as part of the question rather than the usual delimiter.
+
+-The fifth, final, and most important column is the answers blob, containing the primary answer that gets revealed on the game board, acceptable alternates that will also trigger a match, and special modifier characters that influence parsing behavior such as fuzzy/exact match and forbidden words. Answer groups are delimited by | characters, and 
+
+MODIFIER NOTES
+!	Fuzzy matching. Allows for several features of the matching logic that help give credit for inputs "similar" to the answer. If no modifier character is specified, it defaults to this.
+!=	Exact matching. Pretty straightforward, the input must match the answer exactly. Probably still benefits from some of the tokenization / synonym / suffix processing rules though.
+~	Denotes a forbidden word. Ex: for "Name something you associate with Tinkerbell", ~DUST !FAIRY means we want to fuzzy match on "fairy", but dust can't be included in the answer. Usually this is done when the forbidden word is a different answer, so in this case "fairy" and "fairy dust" are both on the board.
+#	Unused modifier, but can sometimes appears in an answer such as "driver's license #" or "social security #". Need to be able to default ! / #! / !# / <nothing> all to fuzzy.
+
+JSON SCHEMA
+// question
+{
+	_id: int,
+	round: int,
+	questionPack: int, // enum value: 1, 2, Dream Home, Holiday Edition, etc.
+	questionText: string,
+	averageScore: int,
+	answerGroups: answerGroup[]
+}
+
+// answerGroup
+{
+	pointValue: int,
+	displayText: string,
+	answers: answer[]
+}
+
+// answer
+{
+	matchType: int,	// enum value: fuzzy or exact
+	answerText: string,
+	forbiddenWords: string[]
+}
+
+EXAMPLES
+5,|2,34673,"If Superman got old like the rest of us, name a sign that it might be time for him to retire.",!CAN'T FLY| !CANT FLY ANYMORE| !FLIES BADLY| !FLY| !FLIES| !FLIGHT| !SOAR| !flite,32,!WEAK| !STRENGTH| !STRONG| !MUSCLES| !WIMPY| !SHRIMPY| !POWER| !muscular,25,!HE'S SLOW| !SLOW| !SPEED| !FAST| !TIME| !quick,17,!NO X-RAY VISION| !X-RAY| !VISION| !CAN'T SEE| !VISION| !EYES| !EYESIGHT| !BLURRY| !GLASSES| !NEARSIGHTED| !FARSIGHTED| !SPECTACLES| !cataract| !vishen,7,!GRAY HAIR| !WHITE HAIR| !GRAYING| !HAIR| !GRAY| !grey| !SALT AND PEPPER,5,!MEMORY LOSS| !MEMORY| !REMEMBER| !ALZHEIMER'S| !FORGETFUL| !FORGET| !LOSES| !MISPLACES| !absentminded,4
+
+Becomes
+
+{
+	_id: 1,
+	round: 2,
+	questionPack: 2,
+	questionText: "If Superman got old like the rest of us, name a sign that it might be time for him to retire.",
+	averageScore: 40,
+	answerGroups: [
+		{
+			pointValue: 32,
+			displayText: "CAN'T FLY",
+			answers: [
+				{ matchType: 1, answerText: "CAN'T FLY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "CANT FLY ANYMORE", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FLIES BADLY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FLY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FLIES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FLIGHT", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SOAR", forbiddenWords: [] },
+				{ matchType: 1, answerText: "flite", forbiddenWords: [] }
+			]
+		},
+		{
+			pointValue: 25,
+			displayText: "WEAK",
+			answers: [
+				{ matchType: 1, answerText: "WEAK", forbiddenWords: [] },
+				{ matchType: 1, answerText: "STRENGTH", forbiddenWords: [] },
+				{ matchType: 1, answerText: "STRONG", forbiddenWords: [] },
+				{ matchType: 1, answerText: "MUSCLES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "WIMPY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SHRIMPY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "POWER", forbiddenWords: [] },
+				{ matchType: 1, answerText: "muscular", forbiddenWords: [] }
+			]
+		},
+		{
+			pointValue: 17,
+			displayText: "HE'S SLOW",
+			answers: [
+				{ matchType: 1, answerText: "HE'S SLOW", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SLOW", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SPEED", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FAST", forbiddenWords: [] },
+				{ matchType: 1, answerText: "TIME", forbiddenWords: [] },
+				{ matchType: 1, answerText: "quick", forbiddenWords: [] }
+			]
+		},
+		{
+			pointValue: 7,
+			displayText: "NO X-RAY VISION",
+			answers: [
+				{ matchType: 1, answerText: "NO X-RAY VISION", forbiddenWords: [] },
+				{ matchType: 1, answerText: "X-RAY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "VISION", forbiddenWords: [] },
+				{ matchType: 1, answerText: "CAN'T SEE", forbiddenWords: [] },
+				{ matchType: 1, answerText: "VISION", forbiddenWords: [] },
+				{ matchType: 1, answerText: "EYES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "EYESIGHT", forbiddenWords: [] },
+				{ matchType: 1, answerText: "BLURRY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "GLASSES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "NEARSIGHTED", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FARSIGHTED", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SPECTACLES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "cataract", forbiddenWords: [] },
+				{ matchType: 1, answerText: "vishen", forbiddenWords: [] }
+			]
+		},
+		{
+			pointValue: 5,
+			displayText: "GRAY HAIR",
+			answers: [
+				{ matchType: 1, answerText: "GRAY HAIR", forbiddenWords: [] },
+				{ matchType: 1, answerText: "WHITE HAIR", forbiddenWords: [] },
+				{ matchType: 1, answerText: "GRAYING", forbiddenWords: [] },
+				{ matchType: 1, answerText: "HAIR", forbiddenWords: [] },
+				{ matchType: 1, answerText: "GRAY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "grey", forbiddenWords: [] },
+				{ matchType: 1, answerText: "SALT AND PEPPER", forbiddenWords: [] }
+			]
+		},
+		{
+			pointValue: 4,
+			displayText: "MEMORY LOSS",
+			answers: [
+				{ matchType: 1, answerText: "MEMORY LOSS", forbiddenWords: [] },
+				{ matchType: 1, answerText: "MEMORY", forbiddenWords: [] },
+				{ matchType: 1, answerText: "REMEMBER", forbiddenWords: [] },
+				{ matchType: 1, answerText: "ALZHEIMER'S", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FORGETFUL", forbiddenWords: [] },
+				{ matchType: 1, answerText: "FORGET", forbiddenWords: [] },
+				{ matchType: 1, answerText: "LOSES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "MISPLACES", forbiddenWords: [] },
+				{ matchType: 1, answerText: "absentminded", forbiddenWords: [] }
+			]
+		},
+	]
+}
