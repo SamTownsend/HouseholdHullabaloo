@@ -6,12 +6,15 @@
 
 -The fourth column is the question text. It gets wrapped in quotes if it contains a comma in order to identify said comma as part of the question rather than the usual delimiter.
 
--The fifth, final, and most important column is the answers blob, containing the primary answer that gets revealed on the game board, acceptable alternates that will also trigger a match, and special modifier characters that influence parsing behavior such as fuzzy/exact match and forbidden words. Answer groups are delimited by | characters, and 
+-The fifth, final, and most important column is the answers blob, containing the primary answer that gets revealed on the game board, acceptable alternates that will also trigger a match, and special modifier characters that influence parsing behavior such as fuzzy/exact match and forbidden words. Answer groups are delimited by | characters, and conclude with a comma before the answer group's point value.
+
+-The average score for a question is not included within the question data. It is instead computed using scores.cfge, or by using certain default behavior if scores.cfg has not been initialized because the game hasn't yet been run. This seems to imply that the average score is actually influenced by the user's past performance with the question (which would be negligible in practice, as it is highly unlikely for a user to ever get through the over 2000 questions packaged with the game), or perhaps even retrieved from iWin's servers long ago before those were shutdown, thus representing a genuine, crowd-sourced average score. In practice, we can fall back to the default average score implementation, which is simply the sum of the top 2 answers for questions with 3 or 4 answers, or the top 3 answers for questions with 5, 6, or 7 answers.
 
 MODIFIER NOTES
 !	Fuzzy matching. Allows for several features of the matching logic that help give credit for inputs "similar" to the answer. If no modifier character is specified, it defaults to this.
 !=	Exact matching. Pretty straightforward, the input must match the answer exactly. Probably still benefits from some of the tokenization / synonym / suffix processing rules though.
-~	Denotes a forbidden word. Ex: for "Name something you associate with Tinkerbell", ~DUST !FAIRY means we want to fuzzy match on "fairy", but dust can't be included in the answer. Usually this is done when the forbidden word is a different answer, so in this case "fairy" and "fairy dust" are both on the board.
+~	Denotes a forbidden word. Ex: for "Name something you associate with Tinkerbell", ~DUST !FAIRY means we want to fuzzy match on "fairy", but dust can't be included in the answer. Usually this is done when the forbidden word is a different answer; in this case "fairy" and "fairy dust" are both on the board.
+"	Denotes that the answer contains a comma, which needs to be ignored to avoid attempting to parse that answer's point value early.
 #	Unused modifier, but can sometimes appears in an answer such as "driver's license #" or "social security #". Need to be able to default ! / #! / !# / <nothing> all to fuzzy.
 
 JSON SCHEMA
@@ -21,7 +24,7 @@ JSON SCHEMA
 	round: int,
 	questionPack: int, // enum value: 1, 2, Dream Home, Holiday Edition, etc.
 	questionText: string,
-	averageScore: int,
+	averageScore: int, // sum of the top 2 answer group point values for questions with 3 or 4 answer groups, or the top 3 for questions with 5, 6, or 7 answer groups.
 	answerGroups: answerGroup[]
 }
 
@@ -49,7 +52,7 @@ Becomes
 	round: 2,
 	questionPack: 2,
 	questionText: "If Superman got old like the rest of us, name a sign that it might be time for him to retire.",
-	averageScore: 40,
+	averageScore: 74,
 	answerGroups: [
 		{
 			pointValue: 32,
