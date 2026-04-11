@@ -144,3 +144,5 @@ Becomes
 		},
 	]
 }
+
+Use question 121 "Name something associated with the original Star Trek." as another example. That one contains exact match, implicit fuzzy, a forbidden word, and an answer containing a comma.
