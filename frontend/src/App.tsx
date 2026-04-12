@@ -5,9 +5,9 @@ function App() {
 
   useEffect(() => {
     fetch('/api/hello')
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(err => console.error('Failed to fetch:', err))
+      .then((res) => res.json())
+      .then((data) => setMessage(data.message))
+      .catch((err) => console.error('Failed to fetch:', err))
   }, [])
 
   return (
