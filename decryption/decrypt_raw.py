@@ -1,5 +1,5 @@
 """
-Family Feud II - Raw Decryptor
+Questions Binaries - Raw Decryptor
 ==============================
 Decrypts the encrypted blob of each record in questions.bin but makes no
 other changes to the data.  Output is one line per record:

@@ -1,0 +1,43 @@
+.box {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 400px;
+  border: 2px solid white;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: black;
+  color: white;
+}
+
+.text {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  visibility: hidden;
+}
+
+.text.revealed {
+  visibility: visible;
+}
+
+.points {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 10px 12px;
+  background-color: #c0392b;
+  font-weight: bold;
+  font-size: 1.2rem;
+  visibility: hidden;
+}
+
+.points.revealed {
+  visibility: visible;
+}
