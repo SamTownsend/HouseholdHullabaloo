@@ -1,16 +1,22 @@
 import styles from './AnswerBox.module.css'
 
 interface Props {
+  rank: number
   text: string
   points: number
   revealed: boolean
 }
 
-export function AnswerBox({ text, points, revealed }: Props) {
+export function AnswerBox({ rank, text, points, revealed }: Props) {
   return (
     <div className={styles.box}>
-      <span className={`${styles.text} ${revealed ? styles.revealed : ''}`}>{text}</span>
-      <span className={`${styles.points} ${revealed ? styles.revealed : ''}`}>{points}</span>
+      <div className={styles.hidden} style={{ opacity: revealed ? 0 : 1 }}>
+        <div className={styles.rank}>{rank}</div>
+      </div>
+      <div className={styles.revealed} style={{ opacity: revealed ? 1 : 0 }}>
+        <span className={styles.text}>{text}</span>
+        <span className={styles.points}>{points}</span>
+      </div>
     </div>
   )
 }
