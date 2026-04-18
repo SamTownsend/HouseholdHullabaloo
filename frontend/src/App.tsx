@@ -29,6 +29,7 @@ function App() {
         <AnswerBox rank={1} text="DOG" points={37} revealed={revealed} />
         <AnswerBox rank={2} text="CAT" points={16} revealed={revealed} />
         <AnswerBox rank={3} text="" points={10} revealed={false} />
+        <AnswerBox rank={0} text="" points={0} revealed={false} />
         <button onClick={() => setRevealed(!revealed)}>Reveal Answers</button>
       </div>
     </div>
