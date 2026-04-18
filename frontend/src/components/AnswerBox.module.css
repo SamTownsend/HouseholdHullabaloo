@@ -1,13 +1,42 @@
 .box {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: stretch;
+  position: relative;
   width: 400px;
+  height: 56px;
+  font-weight: bold;
+  color: white;
   border: 2px solid white;
   border-radius: 4px;
   overflow: hidden;
+}
+
+.hidden,
+.revealed {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.hidden {
+  background-color: orange;
+  align-items: center;
+  justify-content: center;
+}
+
+.revealed {
   background-color: black;
-  color: white;
+  align-items: stretch;
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 44px;
+  background-color: darkorange;
+  border-radius: 50%;
+  font-size: 1.4rem;
 }
 
 .text {
@@ -16,14 +45,8 @@
   align-items: center;
   justify-content: center;
   padding: 10px 16px;
-  font-weight: bold;
   font-size: 1.2rem;
   letter-spacing: 0.1em;
-  visibility: hidden;
-}
-
-.text.revealed {
-  visibility: visible;
 }
 
 .points {
@@ -32,12 +55,6 @@
   justify-content: center;
   min-width: 56px;
   padding: 10px 12px;
-  background-color: #c0392b;
-  font-weight: bold;
+  background-color: red;
   font-size: 1.2rem;
-  visibility: hidden;
-}
-
-.points.revealed {
-  visibility: visible;
 }
