@@ -1,13 +1,7 @@
+import type { Answer } from '../types'
 import styles from './AnswerBox.module.css'
 
-interface Props {
-  rank: number
-  text: string
-  points: number
-  revealed: boolean
-}
-
-export function AnswerBox({ rank, text, points, revealed }: Props) {
+export function AnswerBox({ rank, text, points, revealed }: Answer) {
   return (
     <div className={styles.box}>
       <div className={styles.hidden} style={{ opacity: revealed ? 0 : 1 }}>
