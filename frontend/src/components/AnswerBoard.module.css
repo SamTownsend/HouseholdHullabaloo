@@ -1,8 +1,8 @@
 .board {
   padding: 4px;
   background-color: black;
-  border: 2px solid white;
-  border-radius: 4px;
+  border: var(--game-border);
+  border-radius: var(--border-radius);
   display: inline-grid;
   grid-template-rows: repeat(4, auto);
   grid-auto-flow: column;

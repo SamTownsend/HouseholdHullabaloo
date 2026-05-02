@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.username {
+  width: 300px;
+  background-color: mediumvioletred;
+  border: var(--game-border);
+  border-radius: var(--border-radius);
+  text-align: center;
+  padding: 8px 24px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: white;
+}

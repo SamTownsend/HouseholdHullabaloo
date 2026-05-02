@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: black;
+  border: var(--game-border);
+  border-radius: 50%;
+  padding: 24px 24px;
+}
+
+.score {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+}
