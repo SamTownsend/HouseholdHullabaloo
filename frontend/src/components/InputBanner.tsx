@@ -23,7 +23,7 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
 
   return (
     <div className={styles.container} style={{ opacity: disabled ? 0.5 : 1 }}>
-      <div className={styles.timer}>:{timeRemaining}</div>
+      <div className={styles.timer}>:{String(timeRemaining).padStart(2, '0')}</div>
       <input
         className={styles.input}
         type="text"
