@@ -17,6 +17,5 @@ export interface Question {
 export interface Game {
   player: Player
   question: Question
-  timeRemaining: number
   score: number
 }

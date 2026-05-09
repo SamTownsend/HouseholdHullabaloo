@@ -32,7 +32,6 @@ app.get('/api/test-game', (req: Request, res: Response) => {
         { rank: 0, text: '', points: 0, revealed: false },
       ],
     },
-    timeRemaining: 30,
     score: 65,
   })
 })

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { NormalRound } from './NormalRound'
+/*import { useEffect, useState } from 'react'
+import { NormalRound } from './screens/NormalRound'
 import type { Game } from './types'
 
 function App() {
@@ -17,6 +17,26 @@ function App() {
   }
 
   return <NormalRound initial={game} />
+}
+
+export default App
+*/
+import { useState } from 'react'
+import { MainMenu } from './screens/MainMenu'
+import { NormalRound } from './screens/NormalRound'
+
+type Screen = 'MainMenu' | 'NormalRound'
+
+function App() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>('MainMenu')
+
+  if (currentScreen === 'MainMenu') {
+    return <MainMenu onStartGame={() => setCurrentScreen('NormalRound')} />
+  }
+
+  if (currentScreen === 'NormalRound') {
+    return <NormalRound />
+  }
 }
 
 export default App
