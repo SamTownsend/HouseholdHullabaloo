@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { stem, synonymMatch, oneCharDiff, lcsScore, scorePair } from './wordScore'
-import { MatchType } from '../../types'
+import { MatchTypes } from '../../types'
 
 describe('stem', () => {
   it.each([
@@ -110,30 +110,30 @@ describe('lcsScore', () => {
 
 describe('scorePair', () => {
   it('returns 100 for an exact match', () => {
-    expect(scorePair('SLEEP', 'SLEEP', MatchType.Fuzzy)).toBe(100)
+    expect(scorePair('SLEEP', 'SLEEP', MatchTypes.Fuzzy)).toBe(100)
   })
 
   it('returns 100 for a stem match', () => {
-    expect(scorePair('SLEEPING', 'SLEEP', MatchType.Fuzzy)).toBe(100)
+    expect(scorePair('SLEEPING', 'SLEEP', MatchTypes.Fuzzy)).toBe(100)
   })
 
   it('returns 99 for a one-character-difference match', () => {
-    expect(scorePair('SLEEP', 'SHEEP', MatchType.Fuzzy)).toBe(99)
+    expect(scorePair('SLEEP', 'SHEEP', MatchTypes.Fuzzy)).toBe(99)
   })
 
   it('returns 90 for a synonym match', () => {
-    expect(scorePair('TV', 'TELEVISION', MatchType.Fuzzy)).toBe(90)
+    expect(scorePair('TV', 'TELEVISION', MatchTypes.Fuzzy)).toBe(90)
   })
 
   it('returns 0 for unrelated words', () => {
-    expect(scorePair('SLEEP', 'AWAKE', MatchType.Fuzzy)).toBe(0)
+    expect(scorePair('SLEEP', 'AWAKE', MatchTypes.Fuzzy)).toBe(0)
   })
 
   it('returns 0 for a stem match in exact mode', () => {
-    expect(scorePair('SLEEPING', 'SLEEP', MatchType.Exact)).toBe(0)
+    expect(scorePair('SLEEPING', 'SLEEP', MatchTypes.Exact)).toBe(0)
   })
 
   it('returns 0 for a one-char-diff match in exact mode', () => {
-    expect(scorePair('SLEEP', 'SHEEP', MatchType.Exact)).toBe(0)
+    expect(scorePair('SLEEP', 'SHEEP', MatchTypes.Exact)).toBe(0)
   })
 })
