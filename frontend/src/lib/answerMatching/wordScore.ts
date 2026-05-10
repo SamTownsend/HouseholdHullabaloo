@@ -1,4 +1,4 @@
-import { MatchType } from '../../types'
+import { MatchTypes } from '../../types'
 
 const SUFFIXES = [
   'ENINGS',
@@ -159,7 +159,7 @@ export function lcsScore(a: string, b: string): number {
 // Scores how well a single stored word matches a single user word.
 // Nonsensical scoring system, result can be either 100, 99, 90, 80, or 0.
 // Presumably will get more complicated for multi-word answers wherever this is called from.
-export function scorePair(wordA: string, wordB: string, matchType: MatchType): number {
+export function scorePair(wordA: string, wordB: string, matchType: MatchTypes): number {
   // exact match
   if (wordA === wordB) {
     return 100
@@ -171,7 +171,7 @@ export function scorePair(wordA: string, wordB: string, matchType: MatchType): n
   }
 
   // Fuzzy evaluation skipped in exact mode
-  if (matchType === MatchType.Exact) {
+  if (matchType === MatchTypes.Exact) {
     return 0
   }
 

@@ -1,36 +1,36 @@
 import { describe, it, expect } from 'vitest'
 import { coreCompare, matchAnswer } from './compareAnswer'
-import { MatchType, type AnswerGroup } from '../../types'
+import { MatchTypes, type AnswerGroup } from '../../types'
 
 describe('coreCompare', () => {
   it('returns a positive score when user input matches stored text', () => {
-    expect(coreCompare('FAIRY', ['FAIRY'], MatchType.Fuzzy)).toBeGreaterThan(0)
+    expect(coreCompare('FAIRY', ['FAIRY'], MatchTypes.Fuzzy)).toBeGreaterThan(0)
   })
 
   it('returns 0 when user input does not match stored text', () => {
-    expect(coreCompare('FAIRY', ['DRAGON'], MatchType.Fuzzy)).toBe(0)
+    expect(coreCompare('FAIRY', ['DRAGON'], MatchTypes.Fuzzy)).toBe(0)
   })
 
   it('returns 0 for empty stored text', () => {
-    expect(coreCompare('', ['FAIRY'], MatchType.Fuzzy)).toBe(0)
+    expect(coreCompare('', ['FAIRY'], MatchTypes.Fuzzy)).toBe(0)
   })
 
   it('returns 0 for empty user tokens', () => {
-    expect(coreCompare('FAIRY', [], MatchType.Fuzzy)).toBe(0)
+    expect(coreCompare('FAIRY', [], MatchTypes.Fuzzy)).toBe(0)
   })
 
   it('handles multi-word stored answers — all words must contribute', () => {
-    expect(coreCompare('FAIRY DUST', ['FAIRY', 'DUST'], MatchType.Fuzzy)).toBeGreaterThan(0)
+    expect(coreCompare('FAIRY DUST', ['FAIRY', 'DUST'], MatchTypes.Fuzzy)).toBeGreaterThan(0)
   })
 
   it('scores lower when only some words of a multi-word answer match', () => {
-    const fullMatch = coreCompare('FAIRY DUST', ['FAIRY', 'DUST'], MatchType.Fuzzy)
-    const partial = coreCompare('FAIRY DUST', ['FAIRY'], MatchType.Fuzzy)
+    const fullMatch = coreCompare('FAIRY DUST', ['FAIRY', 'DUST'], MatchTypes.Fuzzy)
+    const partial = coreCompare('FAIRY DUST', ['FAIRY'], MatchTypes.Fuzzy)
     expect(partial).toBeLessThan(fullMatch)
   })
 
   it('does not stem match in exact mode', () => {
-    expect(coreCompare('SLEEPING', ['SLEEP'], MatchType.Exact)).toBe(0)
+    expect(coreCompare('SLEEPING', ['SLEEP'], MatchTypes.Exact)).toBe(0)
   })
 })
 
@@ -41,8 +41,8 @@ describe('matchAnswer', () => {
     revealed: false,
     displayText: 'FAIRY',
     answers: [
-      { matchType: MatchType.Fuzzy, answerText: 'FAIRY', forbiddenWords: [] },
-      { matchType: MatchType.Fuzzy, answerText: 'PIXIE', forbiddenWords: [] },
+      { matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: [] },
+      { matchType: MatchTypes.Fuzzy, answerText: 'PIXIE', forbiddenWords: [] },
     ],
   }
 
@@ -51,7 +51,7 @@ describe('matchAnswer', () => {
     points: 10,
     revealed: false,
     displayText: 'SODA',
-    answers: [{ matchType: MatchType.Exact, answerText: 'SODA', forbiddenWords: [] }],
+    answers: [{ matchType: MatchTypes.Exact, answerText: 'SODA', forbiddenWords: [] }],
   }
 
   const forbiddenGroup: AnswerGroup = {
@@ -59,7 +59,7 @@ describe('matchAnswer', () => {
     points: 10,
     revealed: false,
     displayText: 'FAIRY',
-    answers: [{ matchType: MatchType.Fuzzy, answerText: 'FAIRY', forbiddenWords: ['DUST'] }],
+    answers: [{ matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: ['DUST'] }],
   }
 
   it('matches a fuzzy answer', () => {

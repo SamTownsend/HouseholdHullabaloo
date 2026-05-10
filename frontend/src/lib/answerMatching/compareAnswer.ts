@@ -1,4 +1,4 @@
-import type { MatchType, AnswerGroup } from '../../types'
+import { MatchTypes, type AnswerGroup } from '../../types'
 import { normalize, tokenize } from './preprocess'
 import { scorePair } from './wordScore'
 
@@ -8,7 +8,7 @@ import { scorePair } from './wordScore'
 export function coreCompare(
   answerText: string,
   userTokens: string[],
-  matchType: MatchType
+  matchType: MatchTypes
 ): number {
   const answerTokens = tokenize(normalize(answerText))
 

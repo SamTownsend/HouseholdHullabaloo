@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { MainMenu } from './screens/MainMenu'
 import { NormalRound } from './screens/NormalRound'
-import { Screen } from './types'
+import { Screens } from './types'
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.MainMenu)
+  const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.MainMenu)
 
-  if (currentScreen === Screen.MainMenu) {
-    return <MainMenu onStartGame={() => setCurrentScreen(Screen.NormalRound)} />
+  if (currentScreen === Screens.MainMenu) {
+    return <MainMenu onStartGame={() => setCurrentScreen(Screens.NormalRound)} />
   }
 
-  if (currentScreen === Screen.NormalRound) {
+  if (currentScreen === Screens.NormalRound) {
     return <NormalRound />
   }
 }

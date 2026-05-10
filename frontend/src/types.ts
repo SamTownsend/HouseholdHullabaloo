@@ -1,19 +1,24 @@
 // Answer validation pipeline types
-export const MatchType = {
+export const MatchTypes = {
   Exact: 1,
   Fuzzy: 2,
 } as const
-export type MatchType = (typeof MatchType)[keyof typeof MatchType]
+export type MatchTypes = (typeof MatchTypes)[keyof typeof MatchTypes]
 
-export const MatchOutcome = {
+export const HarvOutcomes = {
   Correct: 'correct',
   Incorrect: 'incorrect',
   Duplicate: 'duplicate',
 } as const
-export type MatchOutcome = (typeof MatchOutcome)[keyof typeof MatchOutcome]
+export type HarvOutcomes = (typeof HarvOutcomes)[keyof typeof HarvOutcomes]
+
+export interface HarvJudgement {
+  outcome: HarvOutcomes
+  matchedIndex: number
+}
 
 export interface Answer {
-  matchType: MatchType
+  matchType: MatchTypes
   answerText: string
   forbiddenWords: string[]
 }
@@ -46,8 +51,8 @@ export interface Game {
   score: number
 }
 
-export const Screen = {
+export const Screens = {
   MainMenu: 'MainMenu',
   NormalRound: 'NormalRound',
 } as const
-export type Screen = (typeof Screen)[keyof typeof Screen]
+export type Screens = (typeof Screens)[keyof typeof Screens]
