@@ -1,16 +1,16 @@
 import { AnswerBox } from './AnswerBox'
-import type { Answer } from '../types'
+import type { AnswerGroup } from '../types'
 import styles from './AnswerBoard.module.css'
 
 interface Props {
-  answers: Answer[]
+  answerGroups: AnswerGroup[]
 }
 
-export function AnswerBoard({ answers }: Props) {
+export function AnswerBoard({ answerGroups }: Props) {
   return (
     <div className={styles.board}>
-      {answers.map((answer, index) => (
-        <AnswerBox key={index} {...answer} />
+      {answerGroups.map((answerGroup, index) => (
+        <AnswerBox key={index} {...answerGroup} />
       ))}
     </div>
   )

@@ -1,7 +1,7 @@
-import type { Answer } from '../types'
+import type { AnswerGroup } from '../types'
 import styles from './AnswerBox.module.css'
 
-export function AnswerBox({ rank, text, points, revealed }: Answer) {
+export function AnswerBox({ rank, displayText, points, revealed }: AnswerGroup) {
   return (
     <div className={styles.box}>
       <div className={styles.hidden} style={{ opacity: revealed ? 0 : 1 }}>
@@ -10,7 +10,7 @@ export function AnswerBox({ rank, text, points, revealed }: Answer) {
         </div>
       </div>
       <div className={styles.revealed} style={{ opacity: revealed ? 1 : 0 }}>
-        <span className={styles.text}>{text}</span>
+        <span className={styles.text}>{displayText}</span>
         <span className={styles.points}>{points}</span>
       </div>
     </div>

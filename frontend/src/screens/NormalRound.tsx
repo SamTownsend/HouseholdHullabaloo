@@ -48,8 +48,8 @@ export function NormalRound() {
   return (
     <div className={styles.screen}>
       <GameBanner username={game.player.username} score={game.score} />
-      <QuestionText text={game.question.text} />
-      <AnswerBoard answers={game.question.answers} />
+      <QuestionText text={game.question.questionText} />
+      <AnswerBoard answerGroups={game.question.answerGroups} />
       <InputBanner
         timeRemaining={timeRemaining}
         onSubmit={handleSubmit}
