@@ -19,7 +19,7 @@ app.get('/api/test-game', (req: Request, res: Response) => {
     player: {
       username: 'NEW ERA',
     },
-    score: 65,
+    score: 0,
     question: {
       _id: 1,
       round: 2,
@@ -30,7 +30,7 @@ app.get('/api/test-game', (req: Request, res: Response) => {
       answerGroups: [
         {
           rank: 1,
-          revealed: true,
+          revealed: false,
           points: 32,
           displayText: "CAN'T FLY",
           answers: [
@@ -62,7 +62,7 @@ app.get('/api/test-game', (req: Request, res: Response) => {
         },
         {
           rank: 3,
-          revealed: true,
+          revealed: false,
           points: 17,
           displayText: "HE'S SLOW",
           answers: [
@@ -76,7 +76,7 @@ app.get('/api/test-game', (req: Request, res: Response) => {
         },
         {
           rank: 4,
-          revealed: true,
+          revealed: false,
           points: 7,
           displayText: 'NO X-RAY VISION',
           answers: [

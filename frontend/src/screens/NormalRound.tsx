@@ -3,7 +3,8 @@ import { GameBanner } from '../components/GameBanner'
 import { QuestionText } from '../components/QuestionText'
 import { AnswerBoard } from '../components/AnswerBoard'
 import { InputBanner } from '../components/InputBanner'
-import type { Game } from '../types'
+import { surveySays } from '../lib/answerMatching/surveySays'
+import { type Game, HarvOutcomes } from '../types'
 import styles from './NormalRound.module.css'
 
 export function NormalRound() {
@@ -36,9 +37,32 @@ export function NormalRound() {
     }
   }, [timerRunning, timeRemaining])
 
-  function handleSubmit(answer: string) {
-    console.log('Answer submitted:', answer)
-    setTimerRunning(false)
+  function handleSubmit(userInput: string) {
+    if (game === null) {
+      return
+    }
+
+    const result = surveySays(game.question, userInput)
+
+    if (result.outcome === HarvOutcomes.Correct) {
+      setGame((prev) => {
+        if (prev === null) {
+          return null
+        }
+
+        const updatedGroups = prev.question.answerGroups.map((group, i) =>
+          i === result.matchedIndex ? { ...group, revealed: true } : group
+        )
+
+        return {
+          ...prev,
+          score: prev.score + prev.question.answerGroups[result.matchedIndex!].points,
+          question: { ...prev.question, answerGroups: updatedGroups },
+        }
+      })
+
+      setTimeRemaining(30)
+    }
   }
 
   if (game === null) {

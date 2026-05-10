@@ -1,7 +1,7 @@
 // Answer validation pipeline types
 export const MatchTypes = {
-  Exact: 1,
-  Fuzzy: 2,
+  Fuzzy: 1,
+  Exact: 2,
 } as const
 export type MatchTypes = (typeof MatchTypes)[keyof typeof MatchTypes]
 

@@ -13,8 +13,9 @@ export function coreCompare(
   const answerTokens = tokenize(normalize(answerText))
 
   if (answerTokens.length === 0 || userTokens.length === 0) return 0
+  if (Math.abs(answerTokens.length - userTokens.length) > 1) return 0
 
-  // Start at full confidence and reduce it for each stored word based on
+  // Start at full confidence and reduce it for each answer word based on
   // how well it matched the best available user token
   let score = 100
   for (const answerWord of answerTokens) {
@@ -32,7 +33,7 @@ export function coreCompare(
 // Normalizes and tokenizes the input once, then evaluates each Answer
 // in the group, respecting its matchType and forbiddenWords.
 // Returns the best score across all answers in the group (0–100).
-export function matchAnswer(answerGroup: AnswerGroup, userInput: string): number {
+export function scoreAnswer(answerGroup: AnswerGroup, userInput: string): number {
   const userTokens = tokenize(normalize(userInput))
   if (userTokens.length === 0) return 0
 
@@ -51,7 +52,7 @@ export function matchAnswer(answerGroup: AnswerGroup, userInput: string): number
     }
 
     const score = coreCompare(answer.answerText, userTokens, answer.matchType)
-    if (score > best) best = score
+    best = Math.max(best, score)
   }
 
   return best

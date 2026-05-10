@@ -1,13 +1,13 @@
 import { HarvOutcomes } from '../../types'
 import type { Question, HarvJudgement } from '../../types'
-import { matchAnswer } from './compareAnswer'
+import { scoreAnswer } from './answerScore'
 
 export function surveySays(question: Question, userInput: string): HarvJudgement {
   let duplicateFound = false
 
   for (let i = 0; i < question.answerGroups.length; i++) {
     const group = question.answerGroups[i]
-    const score = matchAnswer(group, userInput)
+    const score = scoreAnswer(group, userInput)
 
     // Failed to match this group, keep going
     if (score === 0) {

@@ -3,7 +3,7 @@ import styles from './InputBanner.module.css'
 
 interface Props {
   timeRemaining: number
-  onSubmit: (answer: string) => void
+  onSubmit: (userInput: string) => void
   disabled: boolean
 }
 
