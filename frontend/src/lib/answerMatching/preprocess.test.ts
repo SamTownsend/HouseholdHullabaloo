@@ -5,7 +5,7 @@ import { normalize, parseNumber, tokenize } from './preprocess'
 // for debugging
 describe('test', () => {
   it('test', () => {
-    const input = 'TWO HUNDRED AND FIFTY'
+    const input = '6 7'
     console.log(input, tokenize(input))
   })
 })
@@ -92,6 +92,26 @@ describe('parseNumber', () => {
     ['SEVENTEENTH', 17],
     ['EIGHTEENTH', 18],
     ['NINETEENTH', 19],
+    ['0TH', 0],
+    ['1ST', 1],
+    ['2ND', 2],
+    ['3RD', 3],
+    ['4TH', 4],
+    ['5TH', 5],
+    ['6TH', 6],
+    ['7TH', 7],
+    ['8TH', 8],
+    ['9TH', 9],
+    ['10TH', 10],
+    ['11TH', 11],
+    ['12TH', 12],
+    ['13TH', 13],
+    ['14TH', 14],
+    ['15TH', 15],
+    ['16TH', 16],
+    ['17TH', 17],
+    ['18TH', 18],
+    ['19TH', 19],
   ])('returns the correct value for an ordinal (%s > %i)', (input, expected) => {
     expect(parseNumber(input)).toBe(expected)
   })
@@ -118,6 +138,14 @@ describe('parseNumber', () => {
     ['SEVENTIETH', 70],
     ['EIGHTIETH', 80],
     ['NINETIETH', 90],
+    ['20TH', 20],
+    ['30TH', 30],
+    ['40TH', 40],
+    ['50TH', 50],
+    ['60TH', 60],
+    ['70TH', 70],
+    ['80TH', 80],
+    ['90TH', 90],
   ])('returns the correct value for a tens ordinal (%s > %i)', (input, expected) => {
     expect(parseNumber(input)).toBe(expected)
   })

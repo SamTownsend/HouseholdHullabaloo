@@ -66,6 +66,29 @@ const ORDINALS = [
   'NINETEENTH',
 ]
 
+const ORDINALS_ALT = [
+  '0TH',
+  '1ST',
+  '2ND',
+  '3RD',
+  '4TH',
+  '5TH',
+  '6TH',
+  '7TH',
+  '8TH',
+  '9TH',
+  '10TH',
+  '11TH',
+  '12TH',
+  '13TH',
+  '14TH',
+  '15TH',
+  '16TH',
+  '17TH',
+  '18TH',
+  '19TH',
+]
+
 const TENS_CARDINALS = [
   'TWENTY',
   'THIRTY',
@@ -88,10 +111,14 @@ const TENS_ORDINALS = [
   'NINETIETH',
 ]
 
+const TENS_ORDINALS_ALT = ['20TH', '30TH', '40TH', '50TH', '60TH', '70TH', '80TH', '90TH']
+
 CARDINALS.forEach((w, i) => (NUMBER_LOOKUP[w] = i))
 ORDINALS.forEach((w, i) => (NUMBER_LOOKUP[w] = i))
+ORDINALS_ALT.forEach((w, i) => (NUMBER_LOOKUP[w] = i))
 TENS_CARDINALS.forEach((w, i) => (NUMBER_LOOKUP[w] = (i + 2) * 10))
 TENS_ORDINALS.forEach((w, i) => (NUMBER_LOOKUP[w] = (i + 2) * 10))
+TENS_ORDINALS_ALT.forEach((w, i) => (NUMBER_LOOKUP[w] = (i + 2) * 10))
 NUMBER_LOOKUP['HUNDRED'] = 100
 NUMBER_LOOKUP['THOUSAND'] = 1000
 
