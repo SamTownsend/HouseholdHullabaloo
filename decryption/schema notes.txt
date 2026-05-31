@@ -1,12 +1,18 @@
 -The first column seems to be a meaningless constant that is the same throughout the file. Ignore it.
 
--The second column corresponds to the gameplay round and is prefixed with a |. There doesn't seem to be much difference between questions of different rounds, so we could potentially ignore this in my implementation.
+-The second column corresponds to the gameplay round number and is prefixed with a |. Sometimes this column also includes a letter such as |W|, |M|, or |T|, likely indicating a gender field or other gamemode specific flag. I don't intend to implement this, so they can be ignored and we should only extract the number for now.
 
--The third column is a question identifier. I could probably skip this one too in favor of an auto-incrementing _id primary key. I will likely want to include an enum field for the question source though (1, 2, Dream Home, Holiday Edition, etc.) so that question packs can be toggled in the options menu.
+-The third column is a question identifier. I could probably skip this one too in favor of an auto-incrementing _id primary key. I will likely want to include an enum field for the questionPack though, so that question packs can be toggled in the options menu.
+1: First Edition
+2: Second Edition
+3: Dream Home
+4: Battle of the Sexes
+5: Holiday Edition
+6: Movies Edition
 
 -The fourth column is the question text. It gets wrapped in quotes if it contains a comma in order to identify said comma as part of the question rather than the usual delimiter.
 
--The fifth, final, and most important column is the answers blob, containing the primary answer that gets revealed on the game board, acceptable alternates that will also trigger a match, and special modifier characters that influence parsing behavior such as fuzzy/exact match and forbidden words. Answer groups are delimited by | characters, and conclude with a comma before the answer group's point value.
+-The fifth, final, and most important column is the answers blob, containing the primary answer that gets revealed on the game board, acceptable alternates that will also trigger a match, and special modifier characters that influence parsing behavior such as fuzzy/exact match and forbidden words. Answer groups are delimited by | characters, and conclude with a comma before the answer group's point value. I found at least one example of a question with only 2 answers (question 1828). This seems like a mistake as that is an insufficient amount for a full round. It wouldn't be fun to play, so any question with fewer than 3 answers on the board should be ignored.
 
 -The average score for a question is not included within the question data. It is instead computed using scores.cfge, or by using certain default behavior if scores.cfg has not been initialized because the game hasn't yet been run. This seems to imply that the average score is actually influenced by the user's past performance with the question (which would be negligible in practice, as it is highly unlikely for a user to ever get through the over 2000 questions packaged with the game), or perhaps even retrieved from iWin's servers long ago before those were shutdown, thus representing a genuine, crowd-sourced average score. In practice, we can fall back to the default average score implementation, which is simply the sum of the top 2 answers for questions with 3 or 4 answers, or the top 3 answers for questions with 5, 6, or 7 answers.
 
@@ -146,3 +152,5 @@ Becomes
 }
 
 Use question 121 "Name something associated with the original Star Trek." as another example. That one contains exact match, implicit fuzzy, a forbidden word, and an answer containing a comma.
+
+5,|2,41259,Name something associated with the original Star Trek.,MR SPOCK| !SPOCK| !POINTY EAR| !NIMOY| !VULCAN,28,CAPTAIN KIRK| !KIRK| WILLIAM SHATNER| !SHATNER| !KIRK| !TIBERIUS,24,!ENTERPRISE| !STARSHIP| !SPACE SHIPS,10,!KLINGON| !WORF| !WHARF,9,!GEEKS| !NERDS| !DWEEBS| !SPAZ| !DORK| !LOSER| !WEIRDO| !TREKKIES| !FANS| !FANDOM| !cons| !conventions| !vegas,7,!PHASER| !LASER| !STUN| !FAZER| !gun| =!weapon,6,"SPACE, FINAL FRONTIER| ~ship !SPACE| !FRONTIER| !FINAL",5

@@ -51,17 +51,19 @@ LCG_ADD   = 0x269EC3
 MASK32    = 0xFFFFFFFF
 
 # Maximum number of printable bytes we expect in any single blob.
-# Measured across all 2,195 records: the longest blob has 686 printable bytes.
-# 750 gives a safe margin above that.
-MAX_PRINTABLE = 750
+# Measured across all known packs: the longest blob is 1324 printable bytes (pack 3).
+# 1500 gives a safe margin above that.
+MAX_PRINTABLE = 1500
 
 # Observed max key multiplier in the game data is ~60; 120 gives ample margin.
 MAX_MULT = 120
 
 print(f'Pre-computing keystreams for multipliers 1..{MAX_MULT}...', flush=True)
 
-# keystreams[mult] = list of (state & 0x1F) for positions 0..MAX_PRINTABLE-1
+# keystreams[mult] = tuple of (state & 0x1F, final_state) for positions 0..MAX_PRINTABLE-1
+# final_state is stored so the keystream can be extended on the fly for unusually long blobs.
 keystreams = {}
+ks_end_state = {}
 for mult in range(1, MAX_MULT + 1):
     state = (mult * 0xFEED) & MASK32
     ks = []
@@ -69,14 +71,20 @@ for mult in range(1, MAX_MULT + 1):
         state = (state * LCG_MULT + LCG_ADD) & MASK32
         ks.append(state & 0x1F)
     keystreams[mult] = ks
+    ks_end_state[mult] = state
 
 print('Done.', flush=True)
 
 # ---------------------------------------------------------------------------
 # Decrypt blob using pre-computed keystream for `mult`.
+# If the blob is longer than the pre-computed keystream, the keystream is
+# extended on the fly from the stored LCG state rather than falling back to
+# XOR-with-zero (which would leave the tail encrypted).
 # ---------------------------------------------------------------------------
 def lcg_decrypt_fast(raw_bytes: bytes, mult: int) -> bytes:
-    ks     = keystreams[mult]
+    ks         = keystreams[mult]
+    ext_state  = ks_end_state[mult]  # LCG state after the pre-computed segment
+    ext_ks     = []                  # lazily extended keystream entries
     result = bytearray()
     ki     = 0
     for b in raw_bytes:
@@ -84,7 +92,15 @@ def lcg_decrypt_fast(raw_bytes: bytes, mult: int) -> bytes:
             result.append(b)
             continue
         if 0x20 <= b <= 0x7F:
-            xor = ks[ki] if ki < len(ks) else 0
+            if ki < len(ks):
+                xor = ks[ki]
+            else:
+                # Extend the keystream one step at a time
+                ext_idx = ki - len(ks)
+                while len(ext_ks) <= ext_idx:
+                    ext_state = (ext_state * LCG_MULT + LCG_ADD) & MASK32
+                    ext_ks.append(ext_state & 0x1F)
+                xor = ext_ks[ext_idx]
             result.append(b ^ xor)
             ki += 1
         else:
