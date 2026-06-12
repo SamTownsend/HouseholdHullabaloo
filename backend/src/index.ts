@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from 'express'
 import cors from 'cors'
-import { connectToDatabase } from './db.js'
+import { connectToDatabase, getDb } from './db.js'
+import type { QuestionDocument } from './types.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -10,6 +11,19 @@ app.use(cors({ origin: 'http://localhost:5173' }))
 
 app.get('/api/hello', (req: Request, res: Response) => {
   res.json({ message: 'Hello from the backend!' })
+})
+
+app.get('/api/questions/random', async (req: Request, res: Response) => {
+  const id = Math.floor(Math.random() * 10095) + 1
+  const db = getDb()
+  const question = await db.collection<QuestionDocument>('questions').findOne({ _id: id })
+
+  if (!question) {
+    res.status(404).json({ error: `No question found with id ${id}` })
+    return
+  }
+
+  res.json(question)
 })
 
 app.get('/api/test-game', (req: Request, res: Response) => {

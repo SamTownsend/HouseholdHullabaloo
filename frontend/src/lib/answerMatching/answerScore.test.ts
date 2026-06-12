@@ -47,8 +47,8 @@ describe('coreCompare', () => {
 describe('matchAnswer', () => {
   const fairyGroup: AnswerGroup = {
     rank: 1,
-    points: 10,
     revealed: false,
+    pointValue: 10,
     displayText: 'FAIRY',
     answers: [
       { matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: [] },
@@ -58,16 +58,16 @@ describe('matchAnswer', () => {
 
   const exactGroup: AnswerGroup = {
     rank: 2,
-    points: 10,
     revealed: false,
+    pointValue: 10,
     displayText: 'SODA',
     answers: [{ matchType: MatchTypes.Exact, answerText: 'SODA', forbiddenWords: [] }],
   }
 
   const forbiddenGroup: AnswerGroup = {
     rank: 3,
-    points: 10,
     revealed: false,
+    pointValue: 10,
     displayText: 'FAIRY',
     answers: [{ matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: ['DUST'] }],
   }

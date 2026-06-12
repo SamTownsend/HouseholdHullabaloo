@@ -25,8 +25,8 @@ export interface Answer {
 
 export interface AnswerGroup {
   rank: number
-  points: number
   revealed: boolean
+  pointValue: number
   displayText: string
   answers: Answer[]
 }
@@ -56,3 +56,9 @@ export const Screens = {
   NormalRound: 'NormalRound',
 } as const
 export type Screens = (typeof Screens)[keyof typeof Screens]
+
+// API types
+export type AnswerGroupDocument = Omit<AnswerGroup, 'rank' | 'revealed'>
+export type QuestionDocument = Omit<Question, 'answerGroups'> & {
+  answerGroups: AnswerGroupDocument[]
+}

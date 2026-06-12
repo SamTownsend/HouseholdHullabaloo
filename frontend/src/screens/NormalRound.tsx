@@ -4,7 +4,7 @@ import { QuestionText } from '../components/QuestionText'
 import { AnswerBoard } from '../components/AnswerBoard'
 import { InputBanner } from '../components/InputBanner'
 import { surveySays } from '../lib/answerMatching/surveySays'
-import { type Game, HarvOutcomes } from '../types'
+import { type Game, type QuestionDocument, type AnswerGroup, HarvOutcomes } from '../types'
 import styles from './NormalRound.module.css'
 
 export function NormalRound() {
@@ -14,13 +14,42 @@ export function NormalRound() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    fetch('/api/test-game')
-      .then((res) => res.json())
-      .then((data: Game) => {
-        setGame(data)
+    async function fetchQuestion() {
+      try {
+        const res = await fetch('/api/questions/random')
+        const doc: QuestionDocument = await res.json()
+        console.log(doc)
+
+        // Add gameplay properties
+        const roundAnswerGroups: AnswerGroup[] = doc.answerGroups.map((group, i) => ({
+          ...group,
+          rank: i + 1,
+          revealed: false,
+        }))
+
+        // Fill remaining answer board spaces
+        while (roundAnswerGroups.length < 8) {
+          roundAnswerGroups.push({
+            rank: 0,
+            pointValue: 0,
+            revealed: false,
+            displayText: '',
+            answers: [],
+          })
+        }
+
+        setGame({
+          player: { username: 'NEW ERA' },
+          score: 0,
+          question: { ...doc, answerGroups: roundAnswerGroups },
+        })
         setTimerRunning(true)
-      })
-      .catch((err) => console.error('Failed to fetch test game:', err))
+      } catch (err) {
+        console.error('Failed to fetch question:', err)
+      }
+    }
+
+    fetchQuestion()
   }, [])
 
   useEffect(() => {
@@ -56,7 +85,7 @@ export function NormalRound() {
 
         return {
           ...prev,
-          score: prev.score + prev.question.answerGroups[result.matchedIndex!].points,
+          score: prev.score + prev.question.answerGroups[result.matchedIndex!].pointValue,
           question: { ...prev.question, answerGroups: updatedGroups },
         }
       })

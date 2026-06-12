@@ -11,8 +11,8 @@ const testQuestion: Question = {
   answerGroups: [
     {
       rank: 1,
-      points: 40,
       revealed: false,
+      pointValue: 40,
       displayText: 'FAIRY',
       answers: [
         { matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: ['DUST'] },
@@ -21,8 +21,8 @@ const testQuestion: Question = {
     },
     {
       rank: 2,
-      points: 30,
       revealed: false,
+      pointValue: 30,
       displayText: 'FAIRY DUST',
       answers: [
         { matchType: MatchTypes.Fuzzy, answerText: 'FAIRY DUST', forbiddenWords: [] },
@@ -31,8 +31,8 @@ const testQuestion: Question = {
     },
     {
       rank: 3,
-      points: 20,
       revealed: false,
+      pointValue: 20,
       displayText: 'FAIRY',
       answers: [
         { matchType: MatchTypes.Fuzzy, answerText: 'FAIRY', forbiddenWords: ['DUST'] },
