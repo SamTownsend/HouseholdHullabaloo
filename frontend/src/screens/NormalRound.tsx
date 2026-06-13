@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { useInterval } from '../hooks/useInterval'
 import { GameBanner } from '../components/GameBanner'
 import { QuestionText } from '../components/QuestionText'
+import { StrikeDisplay } from '../components/StrikeDisplay'
 import { AnswerBoard } from '../components/AnswerBoard'
 import { InputBanner } from '../components/InputBanner'
 import { surveySays } from '../lib/answerMatching/surveySays'
@@ -9,9 +11,9 @@ import styles from './NormalRound.module.css'
 
 export function NormalRound() {
   const [game, setGame] = useState<Game | null>(null)
-  const [timeRemaining, setTimeRemaining] = useState<number>(30)
+  const [strikes, setStrikes] = useState<number>(0)
+  const [timeRemaining, setTimeRemaining] = useState(30)
   const [timerRunning, setTimerRunning] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -23,6 +25,7 @@ export function NormalRound() {
         // Add gameplay properties
         const roundAnswerGroups: AnswerGroup[] = doc.answerGroups.map((group, i) => ({
           ...group,
+          displayText: group.displayText.toUpperCase(),
           rank: i + 1,
           revealed: false,
         }))
@@ -52,19 +55,17 @@ export function NormalRound() {
     fetchQuestion()
   }, [])
 
-  useEffect(() => {
-    if (timerRunning && timeRemaining > 0) {
-      intervalRef.current = setInterval(() => {
+  useInterval(
+    () => {
+      if (timeRemaining > 0) {
         setTimeRemaining((prev) => prev - 1)
-      }, 1000)
-    }
-
-    return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current)
+      } else {
+        setStrikes((prev) => prev + 1)
+        setTimeRemaining(30)
       }
-    }
-  }, [timerRunning, timeRemaining])
+    },
+    timerRunning ? 1000 : null
+  )
 
   function handleSubmit(userInput: string) {
     if (game === null) {
@@ -85,11 +86,14 @@ export function NormalRound() {
 
         return {
           ...prev,
-          score: prev.score + prev.question.answerGroups[result.matchedIndex!].pointValue,
+          score: prev.score + prev.question.answerGroups[result.matchedIndex].pointValue,
           question: { ...prev.question, answerGroups: updatedGroups },
         }
       })
 
+      setTimeRemaining(30)
+    } else if (result.outcome === HarvOutcomes.Incorrect) {
+      setStrikes((prev) => prev + 1)
       setTimeRemaining(30)
     }
   }
@@ -103,6 +107,7 @@ export function NormalRound() {
       <GameBanner username={game.player.username} score={game.score} />
       <QuestionText text={game.question.questionText} />
       <AnswerBoard answerGroups={game.question.answerGroups} />
+      <StrikeDisplay strikes={strikes} />
       <InputBanner
         timeRemaining={timeRemaining}
         onSubmit={handleSubmit}

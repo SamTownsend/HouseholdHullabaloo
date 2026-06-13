@@ -16,7 +16,7 @@ export function coreCompare(
   if (Math.abs(answerTokens.length - userTokens.length) > 1) return 0
 
   // Start at full confidence and reduce it for each answer word based on
-  // how well it matched the best available user token
+  // how well it matched the best available user token.
   let score = 100
   for (const answerWord of answerTokens) {
     const bestWordScore = userTokens.reduce((best, userWord) => {

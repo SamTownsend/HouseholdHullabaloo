@@ -5,7 +5,7 @@ import { scoreAnswer } from './answerScore'
 export function surveySays(question: Question, userInput: string): HarvJudgement {
   let duplicateFound = false
 
-  for (let i = 0; i < question.answerGroups.length; i++) {
+  for (let i = 0; i < question.answerGroups.filter((g) => g.rank > 0).length; i++) {
     const group = question.answerGroups[i]
     const score = scoreAnswer(group, userInput)
 

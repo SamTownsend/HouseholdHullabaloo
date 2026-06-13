@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  min-height: 4rem;
+}
+
+.strike {
+  font-size: 4rem;
+  font-weight: bold;
+  color: red;
+}
