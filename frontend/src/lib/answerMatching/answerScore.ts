@@ -12,8 +12,13 @@ export function coreCompare(
 ): number {
   const answerTokens = tokenize(normalize(answerText))
 
-  if (answerTokens.length === 0 || userTokens.length === 0) return 0
-  if (Math.abs(answerTokens.length - userTokens.length) > 1) return 0
+  if (
+    answerTokens.length === 0 ||
+    userTokens.length === 0 ||
+    Math.abs(answerTokens.length - userTokens.length) > 1
+  ) {
+    return 0
+  }
 
   // Start at full confidence and reduce it for each answer word based on
   // how well it matched the best available user token.
@@ -35,7 +40,9 @@ export function coreCompare(
 // Returns the best score across all answers in the group (0–100).
 export function scoreAnswer(answerGroup: AnswerGroup, userInput: string): number {
   const userTokens = tokenize(normalize(userInput))
-  if (userTokens.length === 0) return 0
+  if (userTokens.length === 0) {
+    return 0
+  }
 
   let best = 0
 

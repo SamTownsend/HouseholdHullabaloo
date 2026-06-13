@@ -6,107 +6,114 @@ import { StrikeDisplay } from '../components/StrikeDisplay'
 import { AnswerBoard } from '../components/AnswerBoard'
 import { InputBanner } from '../components/InputBanner'
 import { surveySays } from '../lib/answerMatching/surveySays'
-import { type Game, type QuestionDocument, type AnswerGroup, HarvOutcomes } from '../types'
+import {
+  type Session,
+  type RoundSummary,
+  type Question,
+  type AnswerGroup,
+  HarvOutcomes,
+} from '../types'
 import styles from './NormalRound.module.css'
 
-export function NormalRound() {
-  const [game, setGame] = useState<Game | null>(null)
-  const [strikes, setStrikes] = useState<number>(0)
-  const [timeRemaining, setTimeRemaining] = useState(30)
-  const [timerRunning, setTimerRunning] = useState(false)
+interface Props {
+  session: Session
+  question: Question
+  onRoundEnd: (summary: RoundSummary) => void
+}
 
+export function NormalRound({ session, question, onRoundEnd }: Props) {
+  // For debug purposes
   useEffect(() => {
-    async function fetchQuestion() {
-      try {
-        const res = await fetch('/api/questions/random')
-        const doc: QuestionDocument = await res.json()
-        console.log(doc)
+    console.log(question)
+  }, [])
 
-        // Add gameplay properties
-        const roundAnswerGroups: AnswerGroup[] = doc.answerGroups.map((group, i) => ({
-          ...group,
-          displayText: group.displayText.toUpperCase(),
-          rank: i + 1,
-          revealed: false,
-        }))
+  const [answerGroups, setAnswerGroups] = useState<AnswerGroup[]>(() => {
+    const groups = question.answerGroups
+    while (groups.length < 8) {
+      groups.push({ rank: 0, pointValue: 0, revealed: false, displayText: '', answers: [] })
+    }
+    return groups
+  })
+  const [roundScore, setRoundScore] = useState(0)
+  const [strikes, setStrikes] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(30)
+  const [timerRunning, setTimerRunning] = useState(true)
 
-        // Fill remaining answer board spaces
-        while (roundAnswerGroups.length < 8) {
-          roundAnswerGroups.push({
-            rank: 0,
-            pointValue: 0,
-            revealed: false,
-            displayText: '',
-            answers: [],
-          })
-        }
+  function resetTimer() {
+    setTimeRemaining(30)
+    setTimerRunning(true)
+  }
 
-        setGame({
-          player: { username: 'NEW ERA' },
-          score: 0,
-          question: { ...doc, answerGroups: roundAnswerGroups },
-        })
-        setTimerRunning(true)
-      } catch (err) {
-        console.error('Failed to fetch question:', err)
-      }
+  function handleSubmit(userInput: string) {
+    const result = surveySays(answerGroups, userInput)
+
+    if (result.outcome !== HarvOutcomes.Duplicate) {
+      setTimerRunning(false)
     }
 
-    fetchQuestion()
-  }, [])
+    if (result.outcome === HarvOutcomes.Correct) {
+      const updatedGroups = answerGroups.map((group, i) =>
+        i === result.matchedIndex ? { ...group, revealed: true } : group
+      )
+      setAnswerGroups(updatedGroups)
+      setRoundScore((prev) => prev + updatedGroups[result.matchedIndex].pointValue)
+
+      const allRevealed = updatedGroups.filter((g) => g.rank > 0).every((g) => g.revealed)
+      if (allRevealed) {
+        handleRoundEnd()
+      } else {
+        resetTimer()
+      }
+    } else if (result.outcome === HarvOutcomes.Incorrect) {
+      handleStrike()
+    }
+  }
+
+  function handleStrike() {
+    const updatedStrikes = strikes + 1
+    setStrikes(updatedStrikes)
+
+    if (updatedStrikes === 3) {
+      handleRoundEnd()
+    } else {
+      resetTimer()
+    }
+  }
+
+  function handleRoundEnd() {
+    setTimerRunning(false)
+
+    const revealGroups = answerGroups.map((g) => (g.rank > 0 ? { ...g, revealed: true } : g))
+    setAnswerGroups(revealGroups)
+
+    setTimeout(
+      () =>
+        onRoundEnd({
+          questionId: question._id,
+          roundScore: roundScore,
+          averageScore: question.averageScore,
+          strikes: strikes,
+        }),
+      3000
+    )
+  }
 
   useInterval(
     () => {
       if (timeRemaining > 0) {
         setTimeRemaining((prev) => prev - 1)
       } else {
-        setStrikes((prev) => prev + 1)
-        setTimeRemaining(30)
+        handleStrike()
       }
     },
     timerRunning ? 1000 : null
   )
 
-  function handleSubmit(userInput: string) {
-    if (game === null) {
-      return
-    }
-
-    const result = surveySays(game.question, userInput)
-
-    if (result.outcome === HarvOutcomes.Correct) {
-      setGame((prev) => {
-        if (prev === null) {
-          return null
-        }
-
-        const updatedGroups = prev.question.answerGroups.map((group, i) =>
-          i === result.matchedIndex ? { ...group, revealed: true } : group
-        )
-
-        return {
-          ...prev,
-          score: prev.score + prev.question.answerGroups[result.matchedIndex].pointValue,
-          question: { ...prev.question, answerGroups: updatedGroups },
-        }
-      })
-
-      setTimeRemaining(30)
-    } else if (result.outcome === HarvOutcomes.Incorrect) {
-      setStrikes((prev) => prev + 1)
-      setTimeRemaining(30)
-    }
-  }
-
-  if (game === null) {
-    return <p>Loading...</p>
-  }
-
   return (
     <div className={styles.screen}>
-      <GameBanner username={game.player.username} score={game.score} />
-      <QuestionText text={game.question.questionText} />
-      <AnswerBoard answerGroups={game.question.answerGroups} />
+      <GameBanner username={session.player.username} score={roundScore} />
+      <QuestionText text={question.questionText} />
+      <AnswerBoard answerGroups={answerGroups} />
       <StrikeDisplay strikes={strikes} />
       <InputBanner
         timeRemaining={timeRemaining}

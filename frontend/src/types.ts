@@ -45,15 +45,23 @@ export interface Player {
   username: string
 }
 
-export interface Game {
+export interface Session {
   player: Player
-  question: Question
   score: number
+  averageScore: number
+}
+
+export interface RoundSummary {
+  questionId: number
+  roundScore: number
+  averageScore: number
+  strikes: number
 }
 
 export const Screens = {
   MainMenu: 'MainMenu',
   NormalRound: 'NormalRound',
+  ScoreCompare: 'ScoreCompare',
 } as const
 export type Screens = (typeof Screens)[keyof typeof Screens]
 

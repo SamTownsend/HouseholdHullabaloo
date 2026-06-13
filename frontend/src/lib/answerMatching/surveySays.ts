@@ -1,12 +1,12 @@
 import { HarvOutcomes } from '../../types'
-import type { Question, HarvJudgement } from '../../types'
+import type { AnswerGroup, HarvJudgement } from '../../types'
 import { scoreAnswer } from './answerScore'
 
-export function surveySays(question: Question, userInput: string): HarvJudgement {
+export function surveySays(answerGroups: AnswerGroup[], userInput: string): HarvJudgement {
   let duplicateFound = false
 
-  for (let i = 0; i < question.answerGroups.filter((g) => g.rank > 0).length; i++) {
-    const group = question.answerGroups[i]
+  for (let i = 0; i < answerGroups.filter((g) => g.rank > 0).length; i++) {
+    const group = answerGroups[i]
     const score = scoreAnswer(group, userInput)
 
     // Failed to match this group, keep going

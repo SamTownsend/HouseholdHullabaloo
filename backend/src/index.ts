@@ -13,6 +13,19 @@ app.get('/api/hello', (req: Request, res: Response) => {
   res.json({ message: 'Hello from the backend!' })
 })
 
+app.get('/api/questions', async (req: Request, res: Response) => {
+  const countParam = parseInt(req.query.count as string)
+  const count = isNaN(countParam) || countParam < 1 ? 5 : Math.min(countParam, 20)
+
+  const db = getDb()
+  const questions = await db
+    .collection<QuestionDocument>('questions')
+    .aggregate<QuestionDocument>([{ $sample: { size: count } }])
+    .toArray()
+
+  res.json(questions)
+})
+
 app.get('/api/questions/random', async (req: Request, res: Response) => {
   const id = Math.floor(Math.random() * 10095) + 1
   const db = getDb()

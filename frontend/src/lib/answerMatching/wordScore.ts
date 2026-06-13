@@ -141,32 +141,36 @@ function lcsLength(a: string, b: string): number {
 
 const LCS_RATIO_THRESHOLD = 80
 
-// Returns 80 if the LCS covers more than 80% of the shorter word, 0 otherwise
-export function lcsScore(a: string, b: string): number {
-  const minLen = Math.min(a.length, b.length)
-  if (minLen === 0) {
+// Returns 80 if the LCS covers more than 80% of the answer word, 0 otherwise
+// Need to research if it should also cover more than 80% of the user word, to avoid
+// the user submitting really long answers that combine multiple guesses.
+export function lcsScore(answerWord: string, userWord: string): number {
+  if (answerWord.length === 0 || userWord.length === 0) {
     return 0
   }
 
-  const lcs = lcsLength(a, b)
-  if (lcs * 100 <= minLen * LCS_RATIO_THRESHOLD) {
+  const lcs = lcsLength(answerWord, userWord)
+  if (lcs * 100 <= answerWord.length * LCS_RATIO_THRESHOLD) {
     return 0
   }
 
+  console.log('LCS match:', answerWord, userWord, lcs)
   return 80
 }
 
 // Scores how well a single stored word matches a single user word.
 // Nonsensical scoring system, result can be either 100, 99, 90, 80, or 0.
 // Presumably will get more complicated for multi-word answers wherever this is called from.
-export function scorePair(wordA: string, wordB: string, matchType: MatchTypes): number {
+export function scorePair(answerWord: string, userWord: string, matchType: MatchTypes): number {
   // exact match
-  if (wordA === wordB) {
+  if (answerWord === userWord) {
+    console.log('Exact match:', answerWord, userWord)
     return 100
   }
 
   // synonym
-  if (synonymMatch(wordA, wordB)) {
+  if (synonymMatch(answerWord, userWord)) {
+    console.log('Synonym match:', answerWord, userWord)
     return 90
   }
 
@@ -176,11 +180,19 @@ export function scorePair(wordA: string, wordB: string, matchType: MatchTypes): 
   }
 
   // suffix stemming
-  if (stem(wordA) === stem(wordB)) return 100
+  const stemA = stem(answerWord)
+  const stemB = stem(userWord)
+  if (stemA === stemB) {
+    console.log('Suffix match:', stemA, stemB)
+    return 100
+  }
 
   // one character difference
-  if (oneCharDiff(wordA, wordB)) return 99
+  if (oneCharDiff(answerWord, userWord)) {
+    console.log('OneCharDiff match:', answerWord, userWord)
+    return 99
+  }
 
   // LCS partial score for close but not exact matches
-  return lcsScore(wordA, wordB)
+  return lcsScore(answerWord, userWord)
 }
