@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import styles from './InputBanner.module.css'
 
 interface Props {
@@ -9,6 +9,13 @@ interface Props {
 
 export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
   const [inputText, setInputText] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!disabled) {
+      inputRef.current?.focus()
+    }
+  }, [disabled])
 
   function handleSubmit() {
     const trimmed = inputText.trim()
@@ -25,6 +32,7 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
     <div className={styles.container} style={{ opacity: disabled ? 0.5 : 1 }}>
       <div className={styles.timer}>:{String(timeRemaining).padStart(2, '0')}</div>
       <input
+        ref={inputRef}
         className={styles.input}
         type="text"
         value={inputText}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MainMenu } from './screens/MainMenu'
 import { NormalRound } from './screens/NormalRound'
+import { ScoreCompare } from './screens/ScoreCompare'
 import {
   Screens,
   type Session,
@@ -49,6 +50,8 @@ function App() {
   }
 
   function handleNormalRoundEnd(summary: RoundSummary) {
+    console.log(summary)
+
     setSession((prev) => ({
       ...prev,
       score: prev.score + summary.roundScore,
@@ -56,7 +59,6 @@ function App() {
     }))
 
     setCurrentScreen(Screens.ScoreCompare)
-    setTimeout(handleNextRound, 3000)
   }
 
   function handleNextRound() {
@@ -86,11 +88,12 @@ function App() {
 
   if (currentScreen === Screens.ScoreCompare) {
     return (
-      <div>
-        <p>ScoreCompare placeholder</p>
-        <p>Your score: {session.score}</p>
-        <p>Average score: {session.averageScore}</p>
-      </div>
+      <ScoreCompare
+        username={session.player.username}
+        score={session.score}
+        averageScore={session.averageScore}
+        onContinue={handleNextRound}
+      />
     )
   }
 }

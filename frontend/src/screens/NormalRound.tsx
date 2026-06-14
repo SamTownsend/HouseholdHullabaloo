@@ -56,11 +56,13 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
         i === result.matchedIndex ? { ...group, revealed: true } : group
       )
       setAnswerGroups(updatedGroups)
-      setRoundScore((prev) => prev + updatedGroups[result.matchedIndex].pointValue)
+
+      const updatedScore = roundScore + updatedGroups[result.matchedIndex].pointValue
+      setRoundScore(updatedScore)
 
       const allRevealed = updatedGroups.filter((g) => g.rank > 0).every((g) => g.revealed)
       if (allRevealed) {
-        handleRoundEnd()
+        handleRoundEnd(updatedScore, strikes)
       } else {
         resetTimer()
       }
@@ -74,13 +76,13 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     setStrikes(updatedStrikes)
 
     if (updatedStrikes === 3) {
-      handleRoundEnd()
+      handleRoundEnd(roundScore, updatedStrikes)
     } else {
       resetTimer()
     }
   }
 
-  function handleRoundEnd() {
+  function handleRoundEnd(finalRoundScore: number, finalStrikes: number) {
     setTimerRunning(false)
 
     const revealGroups = answerGroups.map((g) => (g.rank > 0 ? { ...g, revealed: true } : g))
@@ -90,9 +92,9 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
       () =>
         onRoundEnd({
           questionId: question._id,
-          roundScore: roundScore,
+          roundScore: finalRoundScore,
           averageScore: question.averageScore,
-          strikes: strikes,
+          strikes: finalStrikes,
         }),
       3000
     )
