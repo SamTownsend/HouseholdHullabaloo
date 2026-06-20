@@ -1,17 +1,29 @@
 import { useState } from 'react'
 import styles from './HouseholdSelect.module.css'
 
-const PLACEHOLDER_HOUSEHOLDS = ['The Smiths', 'The Johnsons', 'The Williams']
+const PLACEHOLDER_HOUSEHOLDS = [
+  'SMITH SYNDICATE',
+  'THE JOHNSONS',
+  "WILLIAM'S WARRIORS",
+  'AAAAAAAAAAAAAAAAAA',
+  'WWWWWWWWWWWWWWWWWW',
+]
 
 interface props {
-  onPlay: (username: string) => void
+  onStartGame: (username: string) => void
 }
 
-export function HouseholdSelect({ onPlay }: props) {
+export function HouseholdSelect({ onStartGame }: props) {
   const [newHousehold, setNewHousehold] = useState('')
   const [selectedHousehold, setSelectedHousehold] = useState('')
 
   const chosenUsername = newHousehold.trim() || selectedHousehold
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && chosenUsername) {
+      onStartGame(chosenUsername)
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -24,9 +36,11 @@ export function HouseholdSelect({ onPlay }: props) {
           id="new-household"
           className={styles.input}
           type="text"
+          maxLength={18}
           value={newHousehold}
           onChange={(e) => setNewHousehold(e.target.value.toUpperCase())}
-          placeholder="Enter household name..."
+          onKeyDown={handleKeyDown}
+          placeholder="ENTER HOUSEHOLD NAME..."
         />
         <div className={styles.separator}>
           <span>OR</span>
@@ -36,11 +50,11 @@ export function HouseholdSelect({ onPlay }: props) {
         </label>
         <select
           id="select-household"
-          className={styles.select}
+          className={`${styles.select} ${selectedHousehold === '' ? styles.selectUnchosen : ''}`}
           value={selectedHousehold}
           onChange={(e) => setSelectedHousehold(e.target.value)}
         >
-          <option value="">-- choose --</option>
+          <option value="">CHOOSE A HOUSEHOLD...</option>
           {PLACEHOLDER_HOUSEHOLDS.map((household) => (
             <option key={household} value={household}>
               {household}
@@ -48,11 +62,11 @@ export function HouseholdSelect({ onPlay }: props) {
           ))}
         </select>
         <button
-          className={styles.playButton}
+          className={styles.startButton}
           disabled={!chosenUsername}
-          onClick={() => onPlay(chosenUsername)}
+          onClick={() => onStartGame(chosenUsername)}
         >
-          PLAY
+          START GAME
         </button>
       </div>
     </div>

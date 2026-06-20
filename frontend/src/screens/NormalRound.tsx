@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useInterval } from '../hooks/useInterval'
 import { GameBanner } from '../components/GameBanner'
 import { QuestionText } from '../components/QuestionText'
@@ -22,11 +22,6 @@ interface Props {
 }
 
 export function NormalRound({ session, question, onRoundEnd }: Props) {
-  // For debug purposes
-  useEffect(() => {
-    console.log(question)
-  }, [])
-
   const [answerGroups, setAnswerGroups] = useState<AnswerGroup[]>(() => {
     const groups = question.answerGroups
     while (groups.length < 8) {

@@ -1,15 +1,15 @@
 import styles from './MainMenu.module.css'
 
 interface Props {
-  onStartGame: () => void
+  onPlay: () => void
 }
 
-export function MainMenu({ onStartGame }: Props) {
+export function MainMenu({ onPlay }: Props) {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Household Hullabaloo</h1>
-      <button className={styles.startButton} onClick={onStartGame}>
-        Start Game
+      <button className={styles.playButton} onClick={onPlay}>
+        PLAY
       </button>
     </div>
   )

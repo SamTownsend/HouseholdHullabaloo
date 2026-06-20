@@ -17,7 +17,7 @@
   margin: 0;
 }
 
-.startButton {
+.playButton {
   font-family: var(--sans);
   background-color: mediumvioletred;
   color: white;
@@ -28,8 +28,9 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   cursor: pointer;
+  min-width: 400px;
 }
 
-.startButton:hover {
+.playButton:hover {
   filter: brightness(1.2);
 }

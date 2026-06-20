@@ -19,13 +19,18 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
 
   function handleSubmit() {
     const trimmed = inputText.trim()
-    if (trimmed === '') return
+    if (trimmed === '') {
+      return
+    }
+
     onSubmit(trimmed)
     setInputText('')
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') handleSubmit()
+    if (e.key === 'Enter') {
+      handleSubmit()
+    }
   }
 
   return (

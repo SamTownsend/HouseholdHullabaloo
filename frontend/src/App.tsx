@@ -39,6 +39,7 @@ function App() {
     try {
       const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}`)
       const fetched: QuestionDocument[] = await res.json()
+      console.log(fetched)
 
       setSession({ player: { username }, score: 0, averageScore: 0 })
       setQuestions(addQuestionGameplayProps(fetched))
@@ -72,11 +73,11 @@ function App() {
   }
 
   if (currentScreen === Screens.MainMenu) {
-    return <MainMenu onStartGame={() => setCurrentScreen(Screens.HouseholdSelect)} />
+    return <MainMenu onPlay={() => setCurrentScreen(Screens.HouseholdSelect)} />
   }
 
   if (currentScreen === Screens.HouseholdSelect) {
-    return <HouseholdSelect onPlay={startGame} />
+    return <HouseholdSelect onStartGame={startGame} />
   }
 
   if (currentScreen === Screens.NormalRound && questions) {
