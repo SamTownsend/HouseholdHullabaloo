@@ -60,6 +60,7 @@ export interface RoundSummary {
 
 export const Screens = {
   MainMenu: 'MainMenu',
+  HouseholdSelect: 'HouseholdSelect',
   NormalRound: 'NormalRound',
   ScoreCompare: 'ScoreCompare',
 } as const

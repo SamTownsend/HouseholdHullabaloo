@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MainMenu } from './screens/MainMenu'
+import { HouseholdSelect } from './screens/HouseholdSelect'
 import { NormalRound } from './screens/NormalRound'
 import { ScoreCompare } from './screens/ScoreCompare'
 import {
@@ -34,15 +35,14 @@ function App() {
     averageScore: 0,
   })
 
-  async function startGame() {
+  async function startGame(username: string) {
     try {
       const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}`)
       const fetched: QuestionDocument[] = await res.json()
 
-      setSession((prev) => ({ ...prev, player: { ...prev.player, username: 'NEW ERA' } }))
+      setSession({ player: { username }, score: 0, averageScore: 0 })
       setQuestions(addQuestionGameplayProps(fetched))
       setCurrentRound(0)
-
       setCurrentScreen(Screens.NormalRound)
     } catch (err) {
       console.error('Failed to start game:', err)
@@ -64,7 +64,7 @@ function App() {
   function handleNextRound() {
     const nextRound = currentRound + 1
     if (nextRound >= ROUNDS_PER_GAME) {
-      return
+      setCurrentScreen(Screens.MainMenu)
     } else {
       setCurrentRound(nextRound)
       setCurrentScreen(Screens.NormalRound)
@@ -72,7 +72,11 @@ function App() {
   }
 
   if (currentScreen === Screens.MainMenu) {
-    return <MainMenu onStartGame={startGame} />
+    return <MainMenu onStartGame={() => setCurrentScreen(Screens.HouseholdSelect)} />
+  }
+
+  if (currentScreen === Screens.HouseholdSelect) {
+    return <HouseholdSelect onPlay={startGame} />
   }
 
   if (currentScreen === Screens.NormalRound && questions) {
