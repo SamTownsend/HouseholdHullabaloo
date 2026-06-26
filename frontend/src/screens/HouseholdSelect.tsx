@@ -7,13 +7,14 @@ import {
   MAX_HOUSEHOLDS,
   type AppStorage,
 } from '../lib/storage'
+import { GameTitle } from '../components/GameTitle'
 import styles from './HouseholdSelect.module.css'
 
-interface props {
+interface Props {
   onStartGame: (household: Household) => void
 }
 
-export function HouseholdSelect({ onStartGame }: props) {
+export function HouseholdSelect({ onStartGame }: Props) {
   const [newHousehold, setNewHousehold] = useState('')
   const [selectedHousehold, setSelectedHousehold] = useState('')
   const [appStorage, setAppStorage] = useLocalStorage<AppStorage>(
@@ -73,7 +74,7 @@ export function HouseholdSelect({ onStartGame }: props) {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Household Hullabaloo</h1>
+      <GameTitle />
       <div className={styles.form}>
         <label className={styles.label} htmlFor="new-household">
           Create new household

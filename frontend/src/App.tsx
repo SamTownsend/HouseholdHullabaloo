@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { MainMenu } from './screens/MainMenu'
+import { Options } from './screens/Options'
+import { Stats } from './screens/Stats'
+import { About } from './screens/About'
 import { HouseholdSelect } from './screens/HouseholdSelect'
 import { NormalRound } from './screens/NormalRound'
 import { ScoreCompare } from './screens/ScoreCompare'
@@ -43,7 +46,7 @@ function App() {
       console.log(fetched)
 
       setSession({
-        household: household,
+        household,
         score: 0,
         averageScore: 0,
       })
@@ -78,7 +81,26 @@ function App() {
   }
 
   if (currentScreen === Screens.MainMenu) {
-    return <MainMenu onPlay={() => setCurrentScreen(Screens.HouseholdSelect)} />
+    return (
+      <MainMenu
+        onPlay={() => setCurrentScreen(Screens.HouseholdSelect)}
+        onOptions={() => setCurrentScreen(Screens.Options)}
+        onStats={() => setCurrentScreen(Screens.Stats)}
+        onAbout={() => setCurrentScreen(Screens.About)}
+      />
+    )
+  }
+
+  if (currentScreen === Screens.Options) {
+    return <Options onDone={() => setCurrentScreen(Screens.MainMenu)} />
+  }
+
+  if (currentScreen === Screens.Stats) {
+    return <Stats onDone={() => setCurrentScreen(Screens.MainMenu)} />
+  }
+
+  if (currentScreen === Screens.About) {
+    return <About onDone={() => setCurrentScreen(Screens.MainMenu)} />
   }
 
   if (currentScreen === Screens.HouseholdSelect) {
