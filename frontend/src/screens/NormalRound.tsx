@@ -108,7 +108,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
 
   return (
     <div className={styles.screen}>
-      <GameBanner username={session.player.username} score={roundScore} />
+      <GameBanner householdName={session.household.name} score={roundScore} />
       <QuestionText text={question.questionText} />
       <AnswerBoard answerGroups={answerGroups} />
       <StrikeDisplay strikes={strikes} />

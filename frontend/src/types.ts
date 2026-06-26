@@ -41,12 +41,14 @@ export interface Question {
 }
 
 // Game session types
-export interface Player {
-  username: string
+export interface Household {
+  name: string
+  gamesPlayed: number
+  lifetimeScore: number
 }
 
 export interface Session {
-  player: Player
+  household: Household
   score: number
   averageScore: number
 }

@@ -6,6 +6,7 @@ import { ScoreCompare } from './screens/ScoreCompare'
 import {
   Screens,
   type Session,
+  type Household,
   type QuestionDocument,
   type RoundSummary,
   type Question,
@@ -30,18 +31,22 @@ function App() {
   const [currentRound, setCurrentRound] = useState(0)
   const [questions, setQuestions] = useState<Question[]>([])
   const [session, setSession] = useState<Session>({
-    player: { username: '' },
+    household: { name: '', gamesPlayed: 0, lifetimeScore: 0 },
     score: 0,
     averageScore: 0,
   })
 
-  async function startGame(username: string) {
+  async function startGame(household: Household) {
     try {
       const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}`)
       const fetched: QuestionDocument[] = await res.json()
       console.log(fetched)
 
-      setSession({ player: { username }, score: 0, averageScore: 0 })
+      setSession({
+        household: household,
+        score: 0,
+        averageScore: 0,
+      })
       setQuestions(addQuestionGameplayProps(fetched))
       setCurrentRound(0)
       setCurrentScreen(Screens.NormalRound)
@@ -94,7 +99,7 @@ function App() {
   if (currentScreen === Screens.ScoreCompare) {
     return (
       <ScoreCompare
-        username={session.player.username}
+        householdName={session.household.name}
         score={session.score}
         averageScore={session.averageScore}
         onContinue={handleNextRound}
