@@ -12,9 +12,9 @@ export interface AnswerGroupDocument {
 
 export interface QuestionDocument {
   _id: number
-  round: number
   questionPack: number
   questionText: string
+  bonusEligible: boolean
   averageScore: number
   answerGroups: AnswerGroupDocument[]
 }

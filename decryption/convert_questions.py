@@ -20,8 +20,7 @@ Parsing rules
 -------------
 Column layout (comma-delimited, CSV-quoted where needed):
   1. Constant "5"   — ignored
-  2. Round          — last integer extracted from patterns like |2, |W|2, |E|O7|2, etc.
-                     Defaults to 2 if the field is blank.
+  2. Round          — ignored
   3. Question ID    — ignored (auto-incrementing _id used instead)
   4. Question text  — may be CSV-quoted if it contains a comma
   5+. Answers blob  — alternating [group_text, point_value, group_text, point_value, ...]
@@ -180,33 +179,6 @@ def compute_average_score(answer_groups: list[dict]) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Round column parsing
-# ---------------------------------------------------------------------------
-
-_DIGIT_RE = re.compile(r'\d+')
-
-
-def parse_round_col(round_col: str) -> int:
-    """
-    Parse the round column, ignoring any letter tags.
-    Uses the LAST integer found, so that extra leading segments like |E|O7|2
-    don't override the actual round number at the end.
-    Defaults to 2 if no integer is present (e.g. blank round field).
-
-    Examples:
-        '|2'      → 2
-        '|W|2'    → 2
-        '|M|3'    → 3
-        '|T|2'    → 2
-        '|2|T'    → 2
-        '|E|O7|2' → 2  (last integer wins)
-        ''        → 2  (default)
-    """
-    nums = _DIGIT_RE.findall(round_col)
-    return int(nums[-1]) if nums else 2
-
-
-# ---------------------------------------------------------------------------
 # Row parsing
 # ---------------------------------------------------------------------------
 
@@ -227,9 +199,7 @@ def parse_row(auto_id: int, fields: list[str], question_pack: int) -> tuple[dict
         )
 
     # Column 0: constant — ignore
-    # Column 1: round
-    round_num = parse_round_col(fields[1])
-
+    # Column 1: round — ignore
     # Column 2: question ID — ignore (use auto_id)
     # Column 3: question text
     question_text = fields[3]
@@ -277,9 +247,9 @@ def parse_row(auto_id: int, fields: list[str], question_pack: int) -> tuple[dict
 
     return {
         '_id': auto_id,
-        'round': round_num,
         'questionPack': question_pack,
         'questionText': question_text,
+        'bonusEligible': len(question_text) <= 80,
         'averageScore': compute_average_score(answer_groups),
         'answerGroups': answer_groups,
     }, warnings

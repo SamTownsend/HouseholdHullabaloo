@@ -33,9 +33,9 @@ export interface AnswerGroup {
 
 export interface Question {
   _id: number
-  round: number
   questionPack: number
   questionText: string
+  bonusEligible: boolean
   averageScore: number
   answerGroups: AnswerGroup[]
 }
