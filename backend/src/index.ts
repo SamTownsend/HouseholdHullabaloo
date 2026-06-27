@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from 'express'
 import cors from 'cors'
 import { connectToDatabase, getDb } from './db.js'
+import type { Document } from 'mongodb'
 import type { QuestionDocument } from './types.js'
 
 const app = express()
@@ -17,10 +18,30 @@ app.get('/api/questions', async (req: Request, res: Response) => {
   const countParam = parseInt(req.query.count as string)
   const count = isNaN(countParam) || countParam < 1 ? 5 : Math.min(countParam, 20)
 
+  const packsParam = req.query.packs as string
+  const validPackIds: number[] = []
+
+  for (const pack of packsParam.split(',')) {
+    const packId = parseInt(pack.split(':')[0] ?? '')
+    // offset is parsed here but reserved for future use
+    //const offset = parseInt(pack.split(':')[1] ?? '')
+
+    if (!isNaN(packId)) {
+      validPackIds.push(packId)
+    }
+  }
+
   const db = getDb()
+  const pipeline: Document[] = []
+
+  if (validPackIds.length > 0) {
+    pipeline.push({ $match: { questionPack: { $in: validPackIds } } })
+  }
+  pipeline.push({ $sample: { size: count } })
+
   const questions = await db
     .collection<QuestionDocument>('questions')
-    .aggregate<QuestionDocument>([{ $sample: { size: count } }])
+    .aggregate<QuestionDocument>(pipeline)
     .toArray()
 
   res.json(questions)

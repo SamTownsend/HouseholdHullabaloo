@@ -1,26 +1,18 @@
 import { useState } from 'react'
 import type { Household } from '../types'
-import { useLocalStorage } from '../hooks/useLocalStorage'
-import {
-  APP_STORAGE_KEY,
-  DEFAULT_APP_STORAGE,
-  MAX_HOUSEHOLDS,
-  type AppStorage,
-} from '../lib/storage'
+import { MAX_HOUSEHOLDS, type AppStorage } from '../lib/storage'
 import { GameTitle } from '../components/GameTitle'
 import styles from './HouseholdSelect.module.css'
 
 interface Props {
+  appStorage: AppStorage
+  setAppStorage: (value: AppStorage) => void
   onStartGame: (household: Household) => void
 }
 
-export function HouseholdSelect({ onStartGame }: Props) {
+export function HouseholdSelect({ appStorage, setAppStorage, onStartGame }: Props) {
   const [newHousehold, setNewHousehold] = useState('')
   const [selectedHousehold, setSelectedHousehold] = useState('')
-  const [appStorage, setAppStorage] = useLocalStorage<AppStorage>(
-    APP_STORAGE_KEY,
-    DEFAULT_APP_STORAGE
-  )
 
   const chosenName = newHousehold.trim() || selectedHousehold
 

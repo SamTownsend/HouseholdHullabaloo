@@ -1,0 +1,75 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionHeading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.packList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.packItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: var(--game-border);
+  border-radius: var(--border-radius);
+  color: white;
+  background-color: navy;
+  cursor: pointer;
+  user-select: none;
+}
+
+.packItem:not(:has(input:disabled)):hover {
+  filter: brightness(1.2);
+}
+
+.packItem:has(input:disabled) {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid white;
+  border-radius: 2px;
+  background-color: transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checkbox:not(:disabled):hover {
+  border-color: mediumvioletred;
+}
+
+.checkbox:checked {
+  background-color: mediumvioletred;
+  border-color: mediumvioletred;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M2.5 9 L5.5 12 L13.5 4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 75%;
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+}
+
+.packName {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}

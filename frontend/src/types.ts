@@ -47,6 +47,12 @@ export interface Household {
   lifetimeScore: number
 }
 
+export interface QuestionPackConfig {
+  questionPack: number
+  enabled: boolean
+  offset: number
+}
+
 export interface Session {
   household: Household
   score: number

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocalStorage } from './hooks/useLocalStorage'
 import { MainMenu } from './screens/MainMenu'
 import { Options } from './screens/Options'
 import { Stats } from './screens/Stats'
@@ -14,6 +15,7 @@ import {
   type RoundSummary,
   type Question,
 } from './types'
+import { APP_STORAGE_KEY, DEFAULT_APP_STORAGE, type AppStorage } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
 
@@ -30,6 +32,10 @@ function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
 }
 
 function App() {
+  const [appStorage, setAppStorage] = useLocalStorage<AppStorage>(
+    APP_STORAGE_KEY,
+    DEFAULT_APP_STORAGE
+  )
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.MainMenu)
   const [currentRound, setCurrentRound] = useState(0)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -41,7 +47,13 @@ function App() {
 
   async function startGame(household: Household) {
     try {
-      const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}`)
+      const enabledPacks = appStorage.packConfigs.filter((p) => p.enabled)
+      const packQuery =
+        enabledPacks.length > 0
+          ? '&packs=' + enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
+          : ''
+
+      const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}${packQuery}`)
       const fetched: QuestionDocument[] = await res.json()
       console.log(fetched)
 
@@ -92,7 +104,13 @@ function App() {
   }
 
   if (currentScreen === Screens.Options) {
-    return <Options onDone={() => setCurrentScreen(Screens.MainMenu)} />
+    return (
+      <Options
+        appStorage={appStorage}
+        setAppStorage={setAppStorage}
+        onDone={() => setCurrentScreen(Screens.MainMenu)}
+      />
+    )
   }
 
   if (currentScreen === Screens.Stats) {
@@ -104,7 +122,13 @@ function App() {
   }
 
   if (currentScreen === Screens.HouseholdSelect) {
-    return <HouseholdSelect onStartGame={startGame} />
+    return (
+      <HouseholdSelect
+        appStorage={appStorage}
+        setAppStorage={setAppStorage}
+        onStartGame={startGame}
+      />
+    )
   }
 
   if (currentScreen === Screens.NormalRound && questions) {

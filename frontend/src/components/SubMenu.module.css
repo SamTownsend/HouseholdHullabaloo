@@ -14,8 +14,6 @@
   color: white;
   width: 100%;
   max-width: 800px;
-  border: var(--game-border);
-  border-radius: var(--border-radius);
   padding: 2rem;
   box-sizing: border-box;
   overflow-y: auto;
