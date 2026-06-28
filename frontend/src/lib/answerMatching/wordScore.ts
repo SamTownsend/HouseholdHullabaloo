@@ -183,7 +183,7 @@ export function scorePair(answerWord: string, userWord: string, matchType: Match
   const stemA = stem(answerWord)
   const stemB = stem(userWord)
   if (stemA === stemB) {
-    console.log('Suffix match:', stemA, stemB)
+    console.log('Suffix match:', userWord, answerWord, '>', stemA)
     return 100
   }
 

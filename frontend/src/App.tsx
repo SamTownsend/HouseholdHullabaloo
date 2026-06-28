@@ -13,6 +13,7 @@ import {
   type Session,
   type Household,
   type QuestionDocument,
+  type GameResponse,
   type RoundSummary,
   type Question,
 } from './types'
@@ -20,6 +21,8 @@ import { APP_STORAGE_KEY, DEFAULT_APP_STORAGE, type AppStorage } from './lib/sto
 
 const ROUNDS_PER_GAME = 4
 const BONUS_ROUND_QUESTIONS = 5
+// TODO make this configurable from Options menu, ex. difficulty = easy / medium / hard
+const AVERAGE_SCORE_DIFFICULTY_MOD = 0.9
 
 function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
   return qdocs.map((qdoc) => ({
@@ -51,13 +54,12 @@ function App() {
   async function startGame(household: Household) {
     try {
       const enabledPacks = appStorage.packConfigs.filter((p) => p.enabled)
-      const packQuery =
-        enabledPacks.length > 0
-          ? '&packs=' + enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
-          : ''
+      const packConfig = enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
 
-      const res = await fetch(`/api/questions?count=${ROUNDS_PER_GAME}${packQuery}`)
-      const fetched: QuestionDocument[] = await res.json()
+      const res = await fetch(
+        `/api/questions/normal-game?count=${ROUNDS_PER_GAME}&bonus=${BONUS_ROUND_QUESTIONS}&packs=${packConfig}`
+      )
+      const fetched: GameResponse = await res.json()
       console.log(fetched)
 
       setSession({
@@ -65,43 +67,43 @@ function App() {
         score: 0,
         averageScore: 0,
       })
-      setQuestions(addQuestionGameplayProps(fetched))
+      setQuestions(addQuestionGameplayProps(fetched.questions))
+      setBonusQuestions(addQuestionGameplayProps(fetched.bonusQuestions))
       setCurrentRound(0)
-      setCurrentScreen(Screens.NormalRound)
+
+      // DEBUG SHORTCUT
+      if (household.name === 'SUMMON BONUS ROUND') {
+        setCurrentScreen(Screens.BonusRound)
+      } else {
+        setCurrentScreen(Screens.NormalRound)
+      }
     } catch (err) {
       console.error('Failed to start game:', err)
-    }
-  }
-
-  async function startBonusRound() {
-    try {
-      const enabledPacks = appStorage.packConfigs.filter((p) => p.enabled)
-      const packQuery =
-        enabledPacks.length > 0
-          ? '&packs=' + enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
-          : ''
-
-      const res = await fetch(
-        `/api/questions?count=${BONUS_ROUND_QUESTIONS}${packQuery}&bonusEligible=true`
-      )
-      const fetched: QuestionDocument[] = await res.json()
-      console.log(fetched)
-
-      setBonusQuestions(addQuestionGameplayProps(fetched))
-      setCurrentScreen(Screens.BonusRound)
-    } catch (err) {
-      console.error('Failed to start bonus round:', err)
-      setCurrentScreen(Screens.MainMenu)
     }
   }
 
   function handleNormalRoundEnd(summary: RoundSummary) {
     console.log(summary)
 
+    // Double points in the penultimate round and triple in the final round
+    const roundMultiplier = Math.max(currentRound, 1)
+
+    // Player earns 10 bonus points for each unused strike
+    let modifiedRoundScore = summary.roundScore * roundMultiplier
+    modifiedRoundScore += 10 * (3 - summary.strikes)
+
+    // The default "average score" formula is way too brutal and needs to be toned down.
+    // Only if it's greater, average the average score with the player's score
+    let modifiedAverageScore = summary.averageScore * roundMultiplier
+    if (modifiedAverageScore > modifiedRoundScore) {
+      modifiedAverageScore = (modifiedAverageScore + modifiedRoundScore) / 2
+    }
+    modifiedAverageScore = Math.floor(modifiedAverageScore * AVERAGE_SCORE_DIFFICULTY_MOD)
+
     setSession((prev) => ({
       ...prev,
-      score: prev.score + summary.roundScore,
-      averageScore: prev.averageScore + summary.averageScore,
+      score: prev.score + modifiedRoundScore,
+      averageScore: prev.averageScore + modifiedAverageScore,
     }))
 
     setCurrentScreen(Screens.ScoreCompare)
@@ -111,7 +113,7 @@ function App() {
     const nextRound = currentRound + 1
     if (nextRound >= ROUNDS_PER_GAME) {
       if (session.score >= session.averageScore) {
-        void startBonusRound()
+        setCurrentScreen(Screens.BonusRound)
       } else {
         setCurrentScreen(Screens.MainMenu)
       }

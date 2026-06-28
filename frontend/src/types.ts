@@ -71,7 +71,6 @@ export type BonusPhase =
   | 'batch2_answering'
   | 'batch2_scoring'
   | 'top_answer_reveal'
-  | 'done'
 
 export interface BonusSlot {
   answerText: string
@@ -94,4 +93,8 @@ export type Screens = (typeof Screens)[keyof typeof Screens]
 export type AnswerGroupDocument = Omit<AnswerGroup, 'rank' | 'revealed'>
 export type QuestionDocument = Omit<Question, 'answerGroups'> & {
   answerGroups: AnswerGroupDocument[]
+}
+export interface GameResponse {
+  questions: QuestionDocument[]
+  bonusQuestions: QuestionDocument[]
 }

@@ -7,7 +7,7 @@ interface Props {
 export function Stats({ onDone }: Props) {
   return (
     <SubMenu onDone={onDone}>
-      <p>STATS</p>
+      <p>More fiction is written in Excel than in Word.</p>
     </SubMenu>
   )
 }

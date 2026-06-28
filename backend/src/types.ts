@@ -18,3 +18,8 @@ export interface QuestionDocument {
   averageScore: number
   answerGroups: AnswerGroupDocument[]
 }
+
+export interface GameResponse {
+  questions: QuestionDocument[]
+  bonusQuestions: QuestionDocument[]
+}
