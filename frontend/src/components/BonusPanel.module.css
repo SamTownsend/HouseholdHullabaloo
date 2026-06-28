@@ -1,0 +1,45 @@
+.panel {
+  background-color: black;
+  border: 3px solid red;
+  border-radius: var(--border-radius);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 4px;
+  height: 48px;
+}
+
+.answerText {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scoreCell {
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+}
+
+.scoreCellRevealed {
+  background-color: red;
+}

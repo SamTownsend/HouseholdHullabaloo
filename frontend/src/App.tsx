@@ -6,6 +6,7 @@ import { Stats } from './screens/Stats'
 import { About } from './screens/About'
 import { HouseholdSelect } from './screens/HouseholdSelect'
 import { NormalRound } from './screens/NormalRound'
+import { BonusRound } from './screens/BonusRound'
 import { ScoreCompare } from './screens/ScoreCompare'
 import {
   Screens,
@@ -18,6 +19,7 @@ import {
 import { APP_STORAGE_KEY, DEFAULT_APP_STORAGE, type AppStorage } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
+const BONUS_ROUND_QUESTIONS = 5
 
 function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
   return qdocs.map((qdoc) => ({
@@ -39,6 +41,7 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.MainMenu)
   const [currentRound, setCurrentRound] = useState(0)
   const [questions, setQuestions] = useState<Question[]>([])
+  const [bonusQuestions, setBonusQuestions] = useState<Question[]>([])
   const [session, setSession] = useState<Session>({
     household: { name: '', gamesPlayed: 0, lifetimeScore: 0 },
     score: 0,
@@ -70,6 +73,28 @@ function App() {
     }
   }
 
+  async function startBonusRound() {
+    try {
+      const enabledPacks = appStorage.packConfigs.filter((p) => p.enabled)
+      const packQuery =
+        enabledPacks.length > 0
+          ? '&packs=' + enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
+          : ''
+
+      const res = await fetch(
+        `/api/questions?count=${BONUS_ROUND_QUESTIONS}${packQuery}&bonusEligible=true`
+      )
+      const fetched: QuestionDocument[] = await res.json()
+      console.log(fetched)
+
+      setBonusQuestions(addQuestionGameplayProps(fetched))
+      setCurrentScreen(Screens.BonusRound)
+    } catch (err) {
+      console.error('Failed to start bonus round:', err)
+      setCurrentScreen(Screens.MainMenu)
+    }
+  }
+
   function handleNormalRoundEnd(summary: RoundSummary) {
     console.log(summary)
 
@@ -85,7 +110,11 @@ function App() {
   function handleNextRound() {
     const nextRound = currentRound + 1
     if (nextRound >= ROUNDS_PER_GAME) {
-      setCurrentScreen(Screens.MainMenu)
+      if (session.score >= session.averageScore) {
+        void startBonusRound()
+      } else {
+        setCurrentScreen(Screens.MainMenu)
+      }
     } else {
       setCurrentRound(nextRound)
       setCurrentScreen(Screens.NormalRound)
@@ -138,6 +167,15 @@ function App() {
         session={session}
         question={questions[currentRound]}
         onRoundEnd={handleNormalRoundEnd}
+      />
+    )
+  }
+
+  if (currentScreen === Screens.BonusRound && bonusQuestions) {
+    return (
+      <BonusRound
+        bonusQuestions={bonusQuestions}
+        onDone={() => setCurrentScreen(Screens.MainMenu)}
       />
     )
   }

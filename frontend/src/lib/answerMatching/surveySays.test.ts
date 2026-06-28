@@ -44,6 +44,11 @@ const partiallyRevealedGroups: AnswerGroup[] = [
 const fullyRevealedGroups: AnswerGroup[] = testGroups.map((g) => ({ ...g, revealed: true }))
 
 describe('surveySays', () => {
+  it.each(['', '   '])('returns incorrect for empty or whitespace user input', (input) => {
+    const result = surveySays(testGroups, input)
+    expect(result.outcome).toBe(HarvOutcomes.Incorrect)
+  })
+
   it('returns correct for a matching unrevealed group', () => {
     const result = surveySays(testGroups, 'fairy')
     expect(result.outcome).toBe(HarvOutcomes.Correct)

@@ -1,0 +1,76 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 100svh;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  gap: 24px;
+}
+
+.questionWrapper {
+  min-height: 7rem;
+  width: 100%;
+  padding-top: 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.panels {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+  padding-top: 28px;
+}
+
+.panelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 280px;
+}
+
+.totalLabel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.totalBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 6px;
+  background-color: black;
+  border: 3px solid red;
+  border-radius: var(--border-radius);
+}
+
+.scoreCell {
+  height: 48px;
+  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+}
+
+.scoreCellRevealed {
+  background-color: red;
+}

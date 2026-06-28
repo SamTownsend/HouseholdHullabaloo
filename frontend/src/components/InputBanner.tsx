@@ -40,6 +40,7 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
         ref={inputRef}
         className={styles.input}
         type="text"
+        maxLength={18}
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
         onKeyDown={handleKeyDown}

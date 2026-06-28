@@ -65,6 +65,18 @@ export interface RoundSummary {
   averageScore: number
   strikes: number
 }
+export type BonusPhase =
+  | 'batch1_answering'
+  | 'batch1_scoring'
+  | 'batch2_answering'
+  | 'batch2_scoring'
+  | 'top_answer_reveal'
+  | 'done'
+
+export interface BonusSlot {
+  answerText: string
+  pointValue: number | null
+}
 
 export const Screens = {
   MainMenu: 'MainMenu',
@@ -73,6 +85,7 @@ export const Screens = {
   About: 'About',
   HouseholdSelect: 'HouseholdSelect',
   NormalRound: 'NormalRound',
+  BonusRound: 'BonusRound',
   ScoreCompare: 'ScoreCompare',
 } as const
 export type Screens = (typeof Screens)[keyof typeof Screens]

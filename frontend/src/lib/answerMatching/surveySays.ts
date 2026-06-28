@@ -3,6 +3,13 @@ import type { AnswerGroup, HarvJudgement } from '../../types'
 import { scoreAnswer } from './answerScore'
 
 export function surveySays(answerGroups: AnswerGroup[], userInput: string): HarvJudgement {
+  if (!userInput.trim()) {
+    return {
+      outcome: HarvOutcomes.Incorrect,
+      matchedIndex: -1,
+    }
+  }
+
   let duplicateFound = false
 
   for (let i = 0; i < answerGroups.filter((g) => g.rank > 0).length; i++) {
