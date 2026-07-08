@@ -1,4 +1,4 @@
-import express, { type Request, type Response } from 'express'
+import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
 import { connectToDatabase, getDb } from './db.js'
 import type { Document } from 'mongodb'
@@ -12,10 +12,6 @@ app.use(express.json())
 const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173'
 app.use(cors({ origin: corsOrigin }))
 
-app.get('/api/hello', (req: Request, res: Response) => {
-  res.json({ message: 'Hello from the backend!' })
-})
-
 app.get('/api/questions/normal-game', async (req: Request, res: Response) => {
   const countParam = parseInt(req.query.count as string)
   const count = isNaN(countParam) || countParam < 1 ? 5 : Math.min(countParam, 20)
@@ -23,15 +19,17 @@ app.get('/api/questions/normal-game', async (req: Request, res: Response) => {
   const bonusParam = parseInt(req.query.bonus as string)
   const bonusCount = isNaN(bonusParam) ? 0 : Math.min(bonusParam, 20)
 
-  const packsParam = req.query.packs as string
   const validPackIds: number[] = []
-  for (const pack of packsParam.split(',')) {
-    const packId = parseInt(pack.split(':')[0] ?? '')
-    // offset is parsed here but reserved for future use
-    //const offset = parseInt(pack.split(':')[1] ?? '')
+  const packsParam = req.query.packs as string | undefined
+  if (packsParam) {
+    for (const pack of packsParam.split(',')) {
+      const packId = parseInt(pack.split(':')[0] ?? '')
+      // offset is parsed here but reserved for future use
+      //const offset = parseInt(pack.split(':')[1] ?? '')
 
-    if (!isNaN(packId)) {
-      validPackIds.push(packId)
+      if (!isNaN(packId)) {
+        validPackIds.push(packId)
+      }
     }
   }
 
@@ -87,6 +85,11 @@ app.get('/api/questions/random', async (req: Request, res: Response) => {
   }
 
   res.json(question)
+})
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
 })
 
 async function start() {
