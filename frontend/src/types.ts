@@ -65,6 +65,7 @@ export interface RoundSummary {
   averageScore: number
   strikes: number
 }
+
 export type BonusPhase =
   | 'batch1_answering'
   | 'batch1_scoring'

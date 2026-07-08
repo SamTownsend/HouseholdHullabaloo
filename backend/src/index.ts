@@ -8,7 +8,9 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
-app.use(cors({ origin: 'http://localhost:5173' }))
+
+const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:5173'
+app.use(cors({ origin: corsOrigin }))
 
 app.get('/api/hello', (req: Request, res: Response) => {
   res.json({ message: 'Hello from the backend!' })
