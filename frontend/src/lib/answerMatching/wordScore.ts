@@ -1,3 +1,4 @@
+import { devLog } from '../logging'
 import { MatchTypes } from '../../types'
 
 const SUFFIXES = [
@@ -154,7 +155,7 @@ export function lcsScore(answerWord: string, userWord: string): number {
     return 0
   }
 
-  console.log('LCS match:', answerWord, userWord, lcs)
+  devLog('LCS match:', answerWord, userWord, lcs)
   return 80
 }
 
@@ -164,13 +165,13 @@ export function lcsScore(answerWord: string, userWord: string): number {
 export function scorePair(answerWord: string, userWord: string, matchType: MatchTypes): number {
   // exact match
   if (answerWord === userWord) {
-    console.log('Exact match:', answerWord, userWord)
+    devLog('Exact match:', answerWord, userWord)
     return 100
   }
 
   // synonym
   if (synonymMatch(answerWord, userWord)) {
-    console.log('Synonym match:', answerWord, userWord)
+    devLog('Synonym match:', answerWord, userWord)
     return 90
   }
 
@@ -183,13 +184,13 @@ export function scorePair(answerWord: string, userWord: string, matchType: Match
   const stemA = stem(answerWord)
   const stemB = stem(userWord)
   if (stemA === stemB) {
-    console.log('Suffix match:', userWord, answerWord, '>', stemA)
+    devLog('Suffix match:', userWord, answerWord, '>', stemA)
     return 100
   }
 
   // one character difference
   if (oneCharDiff(answerWord, userWord)) {
-    console.log('OneCharDiff match:', answerWord, userWord)
+    devLog('OneCharDiff match:', answerWord, userWord)
     return 99
   }
 

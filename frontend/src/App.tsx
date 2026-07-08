@@ -17,6 +17,7 @@ import {
   type RoundSummary,
   type Question,
 } from './types'
+import { devLog } from './lib/logging'
 import { APP_STORAGE_KEY, DEFAULT_APP_STORAGE, type AppStorage } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
@@ -60,7 +61,7 @@ function App() {
         `/api/questions/normal-game?count=${ROUNDS_PER_GAME}&bonus=${BONUS_ROUND_QUESTIONS}&packs=${packConfig}`
       )
       const fetched: GameResponse = await res.json()
-      console.log(fetched)
+      devLog(fetched)
 
       setSession({
         household,
@@ -72,7 +73,7 @@ function App() {
       setCurrentRound(0)
 
       // DEBUG SHORTCUT
-      if (household.name === 'SUMMON BONUS ROUND') {
+      if (import.meta.env.DEV && household.name === 'SUMMON BONUS ROUND') {
         setCurrentScreen(Screens.BonusRound)
       } else {
         setCurrentScreen(Screens.NormalRound)
@@ -83,7 +84,7 @@ function App() {
   }
 
   function handleNormalRoundEnd(summary: RoundSummary) {
-    console.log(summary)
+    devLog(summary)
 
     // Double points in the penultimate round and triple in the final round
     const roundMultiplier = Math.max(currentRound, 1)
