@@ -16,7 +16,7 @@ const POST_TOP_ANSWERS_DELAY_MS = 3000
 
 interface Props {
   bonusQuestions: Question[]
-  onDone: () => void
+  onBonusRoundEnd: (bonusScore: number) => void
 }
 
 function initBatch(questionCount: number): BonusSlot[] {
@@ -26,7 +26,7 @@ function initBatch(questionCount: number): BonusSlot[] {
   }))
 }
 
-export function BonusRound({ bonusQuestions, onDone }: Props) {
+export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
   const questionCount = bonusQuestions.length
   const [questions, setQuestions] = useState<Question[]>(bonusQuestions)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -177,7 +177,7 @@ export function BonusRound({ bonusQuestions, onDone }: Props) {
           const next = revealedTopAnswers + 1
           setRevealedTopAnswers(next)
           if (next >= questionCount) {
-            setTimeout(onDone, POST_TOP_ANSWERS_DELAY_MS)
+            setTimeout(() => onBonusRoundEnd(total), POST_TOP_ANSWERS_DELAY_MS)
           }
         }
       }

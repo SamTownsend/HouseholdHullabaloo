@@ -8,6 +8,7 @@ import { HouseholdSelect } from './screens/HouseholdSelect'
 import { NormalRound } from './screens/NormalRound'
 import { BonusRound } from './screens/BonusRound'
 import { ScoreCompare } from './screens/ScoreCompare'
+import { EndGame } from './screens/EndGame'
 import {
   Screens,
   type Session,
@@ -18,7 +19,7 @@ import {
   type Question,
 } from './types'
 import { devLog } from './lib/logging'
-import { APP_STORAGE_KEY, DEFAULT_APP_STORAGE, type AppStorage } from './lib/storage'
+import { MAX_HIGH_SCORES } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
 const BONUS_ROUND_QUESTIONS = 5
@@ -38,10 +39,7 @@ function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
 }
 
 function App() {
-  const [appStorage, setAppStorage] = useLocalStorage<AppStorage>(
-    APP_STORAGE_KEY,
-    DEFAULT_APP_STORAGE
-  )
+  const [appStorage, setAppStorage] = useLocalStorage()
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.MainMenu)
   const [currentRound, setCurrentRound] = useState(0)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -83,6 +81,29 @@ function App() {
     }
   }
 
+  function handleGameEnd(finalScore: number) {
+    const newEntry = { name: session.household.name, score: finalScore }
+    const updatedHighScores = [...appStorage.highScores, newEntry]
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_HIGH_SCORES)
+
+    const updatedHouseholds = appStorage.households.map((h) =>
+      h.name === session.household.name
+        ? { ...h, gamesPlayed: h.gamesPlayed + 1, lifetimeScore: h.lifetimeScore + finalScore }
+        : h
+    )
+
+    setAppStorage({
+      ...appStorage,
+      highScores: updatedHighScores,
+      gamesPlayed: appStorage.gamesPlayed + 1,
+      lifetimeScore: appStorage.lifetimeScore + finalScore,
+      households: updatedHouseholds,
+    })
+
+    setCurrentScreen(Screens.EndGame)
+  }
+
   function handleNormalRoundEnd(summary: RoundSummary) {
     devLog(summary)
 
@@ -110,13 +131,18 @@ function App() {
     setCurrentScreen(Screens.ScoreCompare)
   }
 
+  function handleBonusRoundEnd(bonusScore: number) {
+    setSession((prev) => ({ ...prev, score: prev.score + bonusScore }))
+    handleGameEnd(session.score + bonusScore)
+  }
+
   function handleNextRound() {
     const nextRound = currentRound + 1
     if (nextRound >= ROUNDS_PER_GAME) {
       if (session.score >= session.averageScore) {
         setCurrentScreen(Screens.BonusRound)
       } else {
-        setCurrentScreen(Screens.MainMenu)
+        handleGameEnd(session.score)
       }
     } else {
       setCurrentRound(nextRound)
@@ -146,7 +172,7 @@ function App() {
   }
 
   if (currentScreen === Screens.Stats) {
-    return <Stats onDone={() => setCurrentScreen(Screens.MainMenu)} />
+    return <Stats appStorage={appStorage} onDone={() => setCurrentScreen(Screens.MainMenu)} />
   }
 
   if (currentScreen === Screens.About) {
@@ -175,12 +201,7 @@ function App() {
   }
 
   if (currentScreen === Screens.BonusRound && bonusQuestions) {
-    return (
-      <BonusRound
-        bonusQuestions={bonusQuestions}
-        onDone={() => setCurrentScreen(Screens.MainMenu)}
-      />
-    )
+    return <BonusRound bonusQuestions={bonusQuestions} onBonusRoundEnd={handleBonusRoundEnd} />
   }
 
   if (currentScreen === Screens.ScoreCompare) {
@@ -190,6 +211,17 @@ function App() {
         score={session.score}
         averageScore={session.averageScore}
         onContinue={handleNextRound}
+      />
+    )
+  }
+
+  if (currentScreen === Screens.EndGame) {
+    return (
+      <EndGame
+        householdName={session.household.name}
+        finalScore={session.score}
+        highScores={appStorage.highScores}
+        onDone={() => setCurrentScreen(Screens.MainMenu)}
       />
     )
   }

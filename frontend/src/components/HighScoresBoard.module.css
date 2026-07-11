@@ -1,0 +1,44 @@
+.container {
+  display: inline-block;
+}
+
+.table {
+  border-collapse: collapse;
+  border: 2px solid white;
+  min-width: 300px;
+}
+
+.nameHeader,
+.scoreHeader {
+  background-color: navy;
+  color: white;
+  font-weight: bold;
+  padding: 6px 16px;
+  text-align: center;
+  border: 2px solid white;
+}
+
+.row {
+  background-color: black;
+  color: white;
+}
+
+.nameCell,
+.scoreCell {
+  padding: 4px 16px;
+  border: 2px solid white;
+}
+
+.nameCell {
+  text-align: left;
+}
+
+.scoreCell {
+  text-align: right;
+}
+
+.newEntry {
+  background-color: goldenrod;
+  color: black;
+  font-weight: bold;
+}

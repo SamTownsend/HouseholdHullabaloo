@@ -1,13 +1,23 @@
 import { SubMenu } from '../components/SubMenu'
+import { HighScoresBoard } from '../components/HighScoresBoard'
+import type { AppStorage } from '../lib/storage'
+import styles from './Stats.module.css'
 
 interface Props {
+  appStorage: AppStorage
   onDone: () => void
 }
 
-export function Stats({ onDone }: Props) {
+export function Stats({ appStorage, onDone }: Props) {
   return (
     <SubMenu onDone={onDone}>
-      <p>More fiction is written in Excel than in Word.</p>
+      <div className={styles.stats}>
+        <div className={styles.accountStats}>
+          <span>Games Played: {appStorage.gamesPlayed}</span>
+          <span>Lifetime Score: {appStorage.lifetimeScore.toLocaleString()}</span>
+        </div>
+        <HighScoresBoard highScores={appStorage.highScores} newEntryIndex={null} />
+      </div>
     </SubMenu>
   )
 }

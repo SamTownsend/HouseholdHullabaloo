@@ -77,6 +77,11 @@ export interface BonusSlot {
   pointValue: number | null
 }
 
+export interface HighScore {
+  name: string
+  score: number
+}
+
 export const Screens = {
   MainMenu: 'MainMenu',
   Options: 'Options',
@@ -86,6 +91,7 @@ export const Screens = {
   NormalRound: 'NormalRound',
   BonusRound: 'BonusRound',
   ScoreCompare: 'ScoreCompare',
+  EndGame: 'EndGame',
 } as const
 export type Screens = (typeof Screens)[keyof typeof Screens]
 
