@@ -71,7 +71,6 @@ export type BonusPhase =
   | 'batch1_scoring'
   | 'batch2_answering'
   | 'batch2_scoring'
-  | 'top_answer_reveal'
 
 export interface BonusSlot {
   answerText: string

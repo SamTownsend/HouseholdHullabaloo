@@ -1,0 +1,25 @@
+# .claudeignore
+
+node_modules/
+dist/
+build/
+
+# Secrets
+
+.env
+.env.local
+.env.production
+_.pem
+_.key
+secrets.json
+
+# Logs
+
+\*.log
+logs/
+
+# Large data files
+
+dataseed/
+_.csv
+_.json.gz
