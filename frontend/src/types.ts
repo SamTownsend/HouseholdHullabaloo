@@ -56,6 +56,7 @@ export interface QuestionPackConfig {
 export interface Session {
   household: Household
   score: number
+  bonusScore: number
   averageScore: number
 }
 

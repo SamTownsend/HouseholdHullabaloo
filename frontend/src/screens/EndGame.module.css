@@ -2,33 +2,50 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  height: 100vh;
   padding: 24px;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .title {
-  color: white;
-  font-size: 2rem;
+  font-family: var(--sans);
+  color: mediumvioletred;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin: 0;
 }
 
-.finalScore {
-  display: flex;
-  justify-content: space-between;
-  gap: 32px;
+.scoreBreakdown {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   font-weight: bold;
-}
-
-.finalScoreLabel {
-  text-align: left;
-}
-
-.finalScoreValue {
-  text-align: right;
+  padding: 16px;
+  margin: 0;
 }
 
 .doneButton {
-  margin-top: 8px;
+  font-family: var(--sans);
+  background-color: mediumvioletred;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 1rem 2.5rem;
+  font-size: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  min-width: 400px;
+}
+
+.doneButton:hover {
+  filter: brightness(1.2);
 }

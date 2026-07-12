@@ -12,11 +12,11 @@ export function Stats({ appStorage, onDone }: Props) {
   return (
     <SubMenu onDone={onDone}>
       <div className={styles.stats}>
-        <div className={styles.accountStats}>
-          <span>Games Played: {appStorage.gamesPlayed}</span>
-          <span>Lifetime Score: {appStorage.lifetimeScore.toLocaleString()}</span>
-        </div>
         <HighScoresBoard highScores={appStorage.highScores} newEntryIndex={null} />
+        <div className={styles.accountStats}>
+          <span>Games Played - {appStorage.gamesPlayed}</span>
+          <span>Lifetime Score - {appStorage.lifetimeScore.toLocaleString()}</span>
+        </div>
       </div>
     </SubMenu>
   )

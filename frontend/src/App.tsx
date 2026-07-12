@@ -19,6 +19,7 @@ import {
   type Question,
 } from './types'
 import { devLog } from './lib/logging'
+import { getFinalScore } from './lib/scoring'
 import { MAX_HIGH_SCORES } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
@@ -47,6 +48,7 @@ function App() {
   const [session, setSession] = useState<Session>({
     household: { name: '', gamesPlayed: 0, lifetimeScore: 0 },
     score: 0,
+    bonusScore: 0,
     averageScore: 0,
   })
 
@@ -64,6 +66,7 @@ function App() {
       setSession({
         household,
         score: 0,
+        bonusScore: 0,
         averageScore: 0,
       })
       setQuestions(addQuestionGameplayProps(fetched.questions))
@@ -81,7 +84,8 @@ function App() {
     }
   }
 
-  function handleGameEnd(finalScore: number) {
+  function handleGameEnd(score: number, bonusScore: number) {
+    const finalScore = getFinalScore(score, bonusScore)
     const newEntry = { name: session.household.name, score: finalScore }
     const updatedHighScores = [...appStorage.highScores, newEntry]
       .sort((a, b) => b.score - a.score)
@@ -132,8 +136,8 @@ function App() {
   }
 
   function handleBonusRoundEnd(bonusScore: number) {
-    setSession((prev) => ({ ...prev, score: prev.score + bonusScore }))
-    handleGameEnd(session.score + bonusScore)
+    setSession((prev) => ({ ...prev, bonusScore }))
+    handleGameEnd(session.score, bonusScore)
   }
 
   function handleNextRound() {
@@ -142,7 +146,7 @@ function App() {
       if (session.score >= session.averageScore) {
         setCurrentScreen(Screens.BonusRound)
       } else {
-        handleGameEnd(session.score)
+        handleGameEnd(session.score, 0)
       }
     } else {
       setCurrentRound(nextRound)
@@ -205,21 +209,13 @@ function App() {
   }
 
   if (currentScreen === Screens.ScoreCompare) {
-    return (
-      <ScoreCompare
-        householdName={session.household.name}
-        score={session.score}
-        averageScore={session.averageScore}
-        onContinue={handleNextRound}
-      />
-    )
+    return <ScoreCompare session={session} onContinue={handleNextRound} />
   }
 
   if (currentScreen === Screens.EndGame) {
     return (
       <EndGame
-        householdName={session.household.name}
-        finalScore={session.score}
+        session={session}
         highScores={appStorage.highScores}
         onDone={() => setCurrentScreen(Screens.MainMenu)}
       />

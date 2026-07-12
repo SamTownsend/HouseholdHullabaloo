@@ -1,11 +1,23 @@
 .container {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--sans);
+  color: white;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
 }
 
 .table {
   border-collapse: collapse;
   border: 2px solid white;
-  min-width: 300px;
+  min-width: 400px;
 }
 
 .nameHeader,
@@ -15,7 +27,9 @@
   font-weight: bold;
   padding: 6px 16px;
   text-align: center;
-  border: 2px solid white;
+  border-left: 2px solid white;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
 }
 
 .row {
@@ -26,7 +40,8 @@
 .nameCell,
 .scoreCell {
   padding: 4px 16px;
-  border: 2px solid white;
+  border-left: 2px solid white;
+  border-right: 2px solid white;
 }
 
 .nameCell {
@@ -38,7 +53,6 @@
 }
 
 .newEntry {
-  background-color: goldenrod;
-  color: black;
+  color: cyan;
   font-weight: bold;
 }
