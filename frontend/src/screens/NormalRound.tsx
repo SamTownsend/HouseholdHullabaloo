@@ -15,6 +15,11 @@ import {
 } from '../types'
 import styles from './NormalRound.module.css'
 
+const SURVEY_SAYS_DELAY_MS = 1500
+const POST_ANSWER_DELAY_MS = 2000
+const REVEAL_INTERVAL_MS = 3500
+const FINAL_DELAY_MS = 6000
+
 interface Props {
   session: Session
   question: Question
@@ -33,36 +38,48 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
   const [strikes, setStrikes] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(30)
   const [timerRunning, setTimerRunning] = useState(true)
+  const [input, setInput] = useState('')
 
   function resetTimer() {
     setTimeRemaining(30)
     setTimerRunning(true)
+    setInput('')
   }
 
   function handleSubmit(userInput: string) {
     const result = surveySays(answerGroups, userInput)
 
-    if (result.outcome !== HarvOutcomes.Duplicate) {
-      setTimerRunning(false)
+    // Duplicates are rejected instantly with no pause; timer keeps running
+    if (result.outcome === HarvOutcomes.Duplicate) {
+      setInput('')
+      return
     }
 
-    if (result.outcome === HarvOutcomes.Correct) {
-      const updatedGroups = answerGroups.map((group, i) =>
-        i === result.matchedIndex ? { ...group, revealed: true } : group
-      )
-      setAnswerGroups(updatedGroups)
-
-      const updatedScore = roundScore + updatedGroups[result.matchedIndex].pointValue
-      setRoundScore(updatedScore)
-
-      const allRevealed = updatedGroups.filter((g) => g.rank > 0).every((g) => g.revealed)
-      if (allRevealed) {
-        handleRoundEnd(updatedScore, strikes)
+    // Stop the timer immediately, then pause suspensefully before revealing the outcome
+    setTimerRunning(false)
+    setTimeout(() => {
+      if (result.outcome === HarvOutcomes.Correct) {
+        handleCorrectAnswer(result.matchedIndex)
       } else {
-        resetTimer()
+        handleStrike()
       }
-    } else if (result.outcome === HarvOutcomes.Incorrect) {
-      handleStrike()
+    }, SURVEY_SAYS_DELAY_MS)
+  }
+
+  function handleCorrectAnswer(matchedIndex: number) {
+    const updatedGroups = answerGroups.map((group, i) =>
+      i === matchedIndex ? { ...group, revealed: true } : group
+    )
+    setAnswerGroups(updatedGroups)
+
+    const updatedScore = roundScore + updatedGroups[matchedIndex].pointValue
+    setRoundScore(updatedScore)
+
+    const allRevealed = updatedGroups.filter((g) => g.rank > 0).every((g) => g.revealed)
+    if (allRevealed) {
+      handleRoundEnd(updatedScore, strikes)
+    } else {
+      setTimeout(resetTimer, POST_ANSWER_DELAY_MS)
     }
   }
 
@@ -73,26 +90,42 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     if (updatedStrikes === 3) {
       handleRoundEnd(roundScore, updatedStrikes)
     } else {
-      resetTimer()
+      setTimeout(resetTimer, POST_ANSWER_DELAY_MS)
     }
   }
 
   function handleRoundEnd(finalRoundScore: number, finalStrikes: number) {
     setTimerRunning(false)
+    const unrevealedRanks = answerGroups.filter((g) => g.rank > 0 && !g.revealed).map((g) => g.rank)
+    roundEndReveal(unrevealedRanks, finalRoundScore, finalStrikes)
+  }
 
-    const revealGroups = answerGroups.map((g) => (g.rank > 0 ? { ...g, revealed: true } : g))
-    setAnswerGroups(revealGroups)
+  function roundEndReveal(
+    unrevealedRanks: number[],
+    finalRoundScore: number,
+    finalStrikes: number
+  ) {
+    // All answers have been revealed. End the round after one final delay
+    if (unrevealedRanks.length === 0) {
+      setTimeout(
+        () =>
+          onRoundEnd({
+            questionId: question._id,
+            roundScore: finalRoundScore,
+            averageScore: question.averageScore,
+            strikes: finalStrikes,
+          }),
+        FINAL_DELAY_MS
+      )
+      return
+    }
 
-    setTimeout(
-      () =>
-        onRoundEnd({
-          questionId: question._id,
-          roundScore: finalRoundScore,
-          averageScore: question.averageScore,
-          strikes: finalStrikes,
-        }),
-      3000
-    )
+    // Reveal the topmost, unrevealed answer and then recurse
+    const [r, ...next] = unrevealedRanks
+    setTimeout(() => {
+      setAnswerGroups((prev) => prev.map((g) => (g.rank === r ? { ...g, revealed: true } : g)))
+      roundEndReveal(next, finalRoundScore, finalStrikes)
+    }, REVEAL_INTERVAL_MS)
   }
 
   useInterval(
@@ -114,6 +147,8 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
       <StrikeDisplay strikes={strikes} />
       <InputBanner
         timeRemaining={timeRemaining}
+        value={input}
+        onChange={setInput}
         onSubmit={handleSubmit}
         disabled={!timerRunning || timeRemaining === 0}
       />

@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import styles from './InputBanner.module.css'
 
 interface Props {
   timeRemaining: number
+  value: string
+  onChange: (value: string) => void
   onSubmit: (userInput: string) => void
   disabled: boolean
 }
 
-export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
-  const [inputText, setInputText] = useState('')
+export function InputBanner({ timeRemaining, value, onChange, onSubmit, disabled }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -18,13 +19,12 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
   }, [disabled])
 
   function handleSubmit() {
-    const trimmed = inputText.trim()
+    const trimmed = value.trim()
     if (trimmed === '') {
       return
     }
 
     onSubmit(trimmed)
-    setInputText('')
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -41,8 +41,8 @@ export function InputBanner({ timeRemaining, onSubmit, disabled }: Props) {
         className={styles.input}
         type="text"
         maxLength={18}
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
         placeholder={disabled ? '' : 'Type your answer...'}

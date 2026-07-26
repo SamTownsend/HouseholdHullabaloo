@@ -45,6 +45,7 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
   const [revealedTopAnswers, setRevealedTopAnswers] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(TIMER_SECONDS_BATCH1)
   const [timerRunning, setTimerRunning] = useState(true)
+  const [input, setInput] = useState('')
 
   // Derived values
   const showBatch2 = phase === 'batch2_answering' || phase === 'batch2_scoring'
@@ -107,6 +108,8 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
   }
 
   function handleSubmit(userInput: string) {
+    setInput('')
+
     // Prevent the player from submitting a duplicate answer in the second batch
     const result = surveySays(questions[currentQuestionIndex].answerGroups, userInput)
     if (result.outcome === HarvOutcomes.Duplicate) {
@@ -226,6 +229,8 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
       <div style={{ visibility: showInputBanner ? 'visible' : 'hidden', display: 'contents' }}>
         <InputBanner
           timeRemaining={timeRemaining}
+          value={input}
+          onChange={setInput}
           onSubmit={handleSubmit}
           disabled={!showInputBanner}
         />
