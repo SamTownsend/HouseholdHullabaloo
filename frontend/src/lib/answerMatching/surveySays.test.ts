@@ -43,6 +43,23 @@ const partiallyRevealedGroups: AnswerGroup[] = [
 
 const fullyRevealedGroups: AnswerGroup[] = testGroups.map((g) => ({ ...g, revealed: true }))
 
+const conflictingScoreGroups: AnswerGroup[] = [
+  {
+    rank: 1,
+    revealed: false,
+    pointValue: 40,
+    displayText: 'BREAD',
+    answers: [{ matchType: MatchTypes.Fuzzy, answerText: 'BREAD', forbiddenWords: [] }],
+  },
+  {
+    rank: 2,
+    revealed: false,
+    pointValue: 30,
+    displayText: 'BREAK',
+    answers: [{ matchType: MatchTypes.Fuzzy, answerText: 'BREAK', forbiddenWords: [] }],
+  },
+]
+
 describe('surveySays', () => {
   it.each(['', '   '])('returns incorrect for empty or whitespace user input', (input) => {
     const result = surveySays(testGroups, input)
@@ -91,5 +108,11 @@ describe('surveySays', () => {
   it('returns duplicate when all matching groups are revealed', () => {
     const result = surveySays(fullyRevealedGroups, 'fairy')
     expect(result.outcome).toBe(HarvOutcomes.Duplicate)
+  })
+
+  it('prefers the highest-scoring match over the highest-ranked match', () => {
+    const result = surveySays(conflictingScoreGroups, 'break')
+    expect(result.outcome).toBe(HarvOutcomes.Correct)
+    expect(result.matchedIndex).toBe(1)
   })
 })

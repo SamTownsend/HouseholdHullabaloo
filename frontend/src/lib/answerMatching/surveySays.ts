@@ -11,6 +11,8 @@ export function surveySays(answerGroups: AnswerGroup[], userInput: string): Harv
   }
 
   let duplicateFound = false
+  let bestIndex = -1
+  let bestScore = 0
 
   for (let i = 0; i < answerGroups.filter((g) => g.rank > 0).length; i++) {
     const group = answerGroups[i]
@@ -21,16 +23,24 @@ export function surveySays(answerGroups: AnswerGroup[], userInput: string): Harv
       continue
     }
 
-    // Correct match
     if (!group.revealed) {
-      return {
-        outcome: HarvOutcomes.Correct,
-        matchedIndex: i,
+      // Track the highest-scoring unrevealed match, preferring the higher-ranked group on ties
+      if (score > bestScore) {
+        bestScore = score
+        bestIndex = i
       }
     }
-
     // Duplicate match, keep going but flag duplicate
-    duplicateFound = true
+    else {
+      duplicateFound = true
+    }
+  }
+
+  if (bestIndex !== -1) {
+    return {
+      outcome: HarvOutcomes.Correct,
+      matchedIndex: bestIndex,
+    }
   }
 
   return {

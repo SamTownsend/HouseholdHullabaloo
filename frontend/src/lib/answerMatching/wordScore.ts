@@ -172,7 +172,7 @@ export function scorePair(answerWord: string, userWord: string, matchType: Match
   // synonym
   if (synonymMatch(answerWord, userWord)) {
     devLog('Synonym match:', answerWord, userWord)
-    return 90
+    return 95
   }
 
   // Fuzzy evaluation skipped in exact mode
@@ -180,18 +180,18 @@ export function scorePair(answerWord: string, userWord: string, matchType: Match
     return 0
   }
 
+  // one character difference
+  if (oneCharDiff(answerWord, userWord)) {
+    devLog('OneCharDiff match:', answerWord, userWord)
+    return 90
+  }
+
   // suffix stemming
   const stemA = stem(answerWord)
   const stemB = stem(userWord)
   if (stemA === stemB) {
     devLog('Suffix match:', userWord, answerWord, '>', stemA)
-    return 100
-  }
-
-  // one character difference
-  if (oneCharDiff(answerWord, userWord)) {
-    devLog('OneCharDiff match:', answerWord, userWord)
-    return 99
+    return 85
   }
 
   // LCS partial score for close but not exact matches

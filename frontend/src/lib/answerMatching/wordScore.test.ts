@@ -113,16 +113,16 @@ describe('scorePair', () => {
     expect(scorePair('SLEEP', 'SLEEP', MatchTypes.Fuzzy)).toBe(100)
   })
 
-  it('returns 100 for a stem match', () => {
-    expect(scorePair('SLEEPING', 'SLEEP', MatchTypes.Fuzzy)).toBe(100)
+  it('returns 95 for a synonym match', () => {
+    expect(scorePair('TV', 'TELEVISION', MatchTypes.Fuzzy)).toBe(95)
   })
 
-  it('returns 99 for a one-character-difference match', () => {
-    expect(scorePair('SLEEP', 'SHEEP', MatchTypes.Fuzzy)).toBe(99)
+  it('returns 90 for a one-character-difference match', () => {
+    expect(scorePair('SLEEP', 'SHEEP', MatchTypes.Fuzzy)).toBe(90)
   })
 
-  it('returns 90 for a synonym match', () => {
-    expect(scorePair('TV', 'TELEVISION', MatchTypes.Fuzzy)).toBe(90)
+  it('returns 85 for a stem match', () => {
+    expect(scorePair('SLEEPING', 'SLEEP', MatchTypes.Fuzzy)).toBe(85)
   })
 
   it('returns 0 for unrelated words', () => {
