@@ -89,6 +89,7 @@ export const Screens = {
   Stats: 'Stats',
   About: 'About',
   HouseholdSelect: 'HouseholdSelect',
+  RoundIntro: 'RoundIntro',
   NormalRound: 'NormalRound',
   BonusRound: 'BonusRound',
   ScoreCompare: 'ScoreCompare',

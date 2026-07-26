@@ -1,0 +1,29 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  min-height: 100svh;
+  padding: 32px 24px;
+  box-sizing: border-box;
+}
+
+.heading {
+  font-size: 4rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.subheading {
+  font-size: 2rem;
+  font-weight: bold;
+  color: gold;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0;
+}

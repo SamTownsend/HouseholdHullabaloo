@@ -5,6 +5,7 @@ import { Options } from './screens/Options'
 import { Stats } from './screens/Stats'
 import { About } from './screens/About'
 import { HouseholdSelect } from './screens/HouseholdSelect'
+import { RoundIntro } from './screens/RoundIntro'
 import { NormalRound } from './screens/NormalRound'
 import { BonusRound } from './screens/BonusRound'
 import { ScoreCompare } from './screens/ScoreCompare'
@@ -19,13 +20,16 @@ import {
   type Question,
 } from './types'
 import { devLog } from './lib/logging'
-import { getFinalScore } from './lib/scoring'
+import {
+  getRoundMultiplier,
+  getMultiplierLabel,
+  getModifiedRoundResult,
+  getFinalScore,
+} from './lib/scoring'
 import { MAX_HIGH_SCORES } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
 const BONUS_ROUND_QUESTIONS = 5
-// TODO make this configurable from Options menu, ex. difficulty = easy / medium / hard
-const AVERAGE_SCORE_DIFFICULTY_MOD = 0.9
 
 function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
   return qdocs.map((qdoc) => ({
@@ -41,6 +45,7 @@ function addQuestionGameplayProps(qdocs: QuestionDocument[]): Question[] {
 
 function App() {
   const [appStorage, setAppStorage] = useLocalStorage()
+  const [introTarget, setIntroTarget] = useState<Screens>(Screens.NormalRound)
   const [currentScreen, setCurrentScreen] = useState<Screens>(Screens.MainMenu)
   const [currentRound, setCurrentRound] = useState(0)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -77,7 +82,8 @@ function App() {
       if (import.meta.env.DEV && household.name === 'SUMMON BONUS ROUND') {
         setCurrentScreen(Screens.BonusRound)
       } else {
-        setCurrentScreen(Screens.NormalRound)
+        setIntroTarget(Screens.NormalRound)
+        setCurrentScreen(Screens.RoundIntro)
       }
     } catch (err) {
       console.error('Failed to start game:', err)
@@ -111,25 +117,11 @@ function App() {
   function handleNormalRoundEnd(summary: RoundSummary) {
     devLog(summary)
 
-    // Double points in the penultimate round and triple in the final round
-    const roundMultiplier = Math.max(currentRound, 1)
-
-    // Player earns 10 bonus points for each unused strike
-    let modifiedRoundScore = summary.roundScore * roundMultiplier
-    modifiedRoundScore += 10 * (3 - summary.strikes)
-
-    // The default "average score" formula is way too brutal and needs to be toned down.
-    // Only if it's greater, average the average score with the player's score
-    let modifiedAverageScore = summary.averageScore * roundMultiplier
-    if (modifiedAverageScore > modifiedRoundScore) {
-      modifiedAverageScore = (modifiedAverageScore + modifiedRoundScore) / 2
-    }
-    modifiedAverageScore = Math.floor(modifiedAverageScore * AVERAGE_SCORE_DIFFICULTY_MOD)
-
+    const { roundScore, averageScore } = getModifiedRoundResult(summary, currentRound)
     setSession((prev) => ({
       ...prev,
-      score: prev.score + modifiedRoundScore,
-      averageScore: prev.averageScore + modifiedAverageScore,
+      score: prev.score + roundScore,
+      averageScore: prev.averageScore + averageScore,
     }))
 
     setCurrentScreen(Screens.ScoreCompare)
@@ -144,13 +136,15 @@ function App() {
     const nextRound = currentRound + 1
     if (nextRound >= ROUNDS_PER_GAME) {
       if (session.score >= session.averageScore) {
-        setCurrentScreen(Screens.BonusRound)
+        setIntroTarget(Screens.BonusRound)
+        setCurrentScreen(Screens.RoundIntro)
       } else {
         handleGameEnd(session.score, 0)
       }
     } else {
       setCurrentRound(nextRound)
-      setCurrentScreen(Screens.NormalRound)
+      setIntroTarget(Screens.NormalRound)
+      setCurrentScreen(Screens.RoundIntro)
     }
   }
 
@@ -189,6 +183,19 @@ function App() {
         appStorage={appStorage}
         setAppStorage={setAppStorage}
         onStartGame={startGame}
+      />
+    )
+  }
+
+  if (currentScreen === Screens.RoundIntro) {
+    const isBonus = introTarget === Screens.BonusRound
+    const multiplier = getRoundMultiplier(currentRound)
+
+    return (
+      <RoundIntro
+        label={isBonus ? 'BONUS ROUND' : `ROUND ${currentRound + 1}`}
+        multiplierLabel={isBonus ? '' : getMultiplierLabel(multiplier)}
+        onContinue={() => setCurrentScreen(introTarget)}
       />
     )
   }
