@@ -8,6 +8,7 @@ import { surveySays } from '../lib/answerMatching/surveySays'
 import { type Question, type BonusSlot, type BonusPhase, HarvOutcomes } from '../types'
 import styles from './BonusRound.module.css'
 
+const QUESTION_REVEAL_INTERVAL_MS = 25
 const TIMER_SECONDS_BATCH1 = 60
 const TIMER_SECONDS_BATCH2 = 65
 const REVEAL_INTERVAL_MS = 4000
@@ -191,7 +192,11 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
   return (
     <div className={styles.screen}>
       <div className={styles.questionWrapper}>
-        <QuestionText text={displayedQuestion?.questionText ?? ''} />
+        <QuestionText
+          key={displayedQuestion?._id ?? 'pending'}
+          text={displayedQuestion?.questionText ?? ''}
+          revealIntervalMs={QUESTION_REVEAL_INTERVAL_MS}
+        />
       </div>
 
       <div className={styles.panels}>
