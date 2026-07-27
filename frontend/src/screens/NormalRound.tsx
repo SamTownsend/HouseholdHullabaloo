@@ -82,7 +82,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
 
     const allRevealed = updatedGroups.filter((g) => g.rank > 0).every((g) => g.revealed)
     if (allRevealed) {
-      handleRoundEnd(updatedScore, strikes)
+      handleRoundEnd(updatedGroups, updatedScore, strikes)
     } else {
       setTimeout(resetTimer, POST_ANSWER_DELAY_MS)
     }
@@ -94,15 +94,21 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     playSound(Sounds.Strike)
 
     if (updatedStrikes === 3) {
-      handleRoundEnd(roundScore, updatedStrikes)
+      handleRoundEnd(answerGroups, roundScore, updatedStrikes)
     } else {
       setTimeout(resetTimer, POST_ANSWER_DELAY_MS)
     }
   }
 
-  function handleRoundEnd(finalRoundScore: number, finalStrikes: number) {
+  function handleRoundEnd(
+    currentAnswerGroups: AnswerGroup[],
+    finalRoundScore: number,
+    finalStrikes: number
+  ) {
     setTimerRunning(false)
-    const unrevealedRanks = answerGroups.filter((g) => g.rank > 0 && !g.revealed).map((g) => g.rank)
+    const unrevealedRanks = currentAnswerGroups
+      .filter((g) => g.rank > 0 && !g.revealed)
+      .map((g) => g.rank)
     roundEndReveal(unrevealedRanks, finalRoundScore, finalStrikes)
   }
 
