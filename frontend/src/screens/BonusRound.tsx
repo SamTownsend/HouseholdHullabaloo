@@ -5,6 +5,7 @@ import { BonusPanel } from '../components/BonusPanel'
 import { TopAnswersPanel } from '../components/TopAnswersPanel'
 import { InputBanner } from '../components/InputBanner'
 import { surveySays } from '../lib/answerMatching/surveySays'
+import { playSound, Sounds } from '../lib/sound'
 import { type Question, type BonusSlot, type BonusPhase, HarvOutcomes } from '../types'
 import styles from './BonusRound.module.css'
 
@@ -108,6 +109,7 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
     // Prevent the player from submitting a duplicate answer in the second batch
     const result = surveySays(questions[currentQuestionIndex].answerGroups, userInput)
     if (result.outcome === HarvOutcomes.Duplicate) {
+      playSound(Sounds.Duplicate)
       return
     }
 
@@ -129,6 +131,7 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
     () => {
       if (timeRemaining > 0) {
         setTimeRemaining((t) => t - 1)
+        playSound(Sounds.Timer)
       } else {
         endBatch(currentBatch)
       }
@@ -159,6 +162,9 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
       const next = batch1ScoredUpTo + 1
       setTotal(updatedTotal)
       setBatch1ScoredUpTo(next)
+      playSound(
+        (batch1[batch1ScoredUpTo].pointValue ?? 0) > 0 ? Sounds.BonusCorrect : Sounds.BonusIncorrect
+      )
       setTimeout(() => setCurrentQuestionIndex(next), NEXT_QUESTION_DELAY_MS)
 
       // Continue to the next batch
@@ -181,11 +187,17 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
         const next = batch2ScoredUpTo + 1
         setTotal(updatedTotal)
         setBatch2ScoredUpTo(next)
+        playSound(
+          (batch2[batch2ScoredUpTo].pointValue ?? 0) > 0
+            ? Sounds.BonusCorrect
+            : Sounds.BonusIncorrect
+        )
       }
       // Reveal next top answer
       else {
         const next = revealedTopAnswers + 1
         setRevealedTopAnswers(next)
+        playSound(Sounds.Reveal)
         setTimeout(() => setCurrentQuestionIndex(next), NEXT_QUESTION_DELAY_MS)
         if (next >= questionCount) {
           setTimeout(() => onBonusRoundEnd(total), POST_TOP_ANSWERS_DELAY_MS)

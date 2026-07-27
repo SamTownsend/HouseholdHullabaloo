@@ -6,6 +6,7 @@ import { StrikeDisplay } from '../components/StrikeDisplay'
 import { AnswerBoard } from '../components/AnswerBoard'
 import { InputBanner } from '../components/InputBanner'
 import { surveySays } from '../lib/answerMatching/surveySays'
+import { playSound, Sounds } from '../lib/sound'
 import {
   type Session,
   type RoundSummary,
@@ -54,6 +55,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     // Duplicates are rejected instantly with no pause; timer keeps running
     if (result.outcome === HarvOutcomes.Duplicate) {
       setInput('')
+      playSound(Sounds.Duplicate)
       return
     }
 
@@ -73,6 +75,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
       i === matchedIndex ? { ...group, revealed: true } : group
     )
     setAnswerGroups(updatedGroups)
+    playSound(Sounds.Reveal)
 
     const updatedScore = roundScore + updatedGroups[matchedIndex].pointValue
     setRoundScore(updatedScore)
@@ -88,6 +91,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
   function handleStrike() {
     const updatedStrikes = strikes + 1
     setStrikes(updatedStrikes)
+    playSound(Sounds.Strike)
 
     if (updatedStrikes === 3) {
       handleRoundEnd(roundScore, updatedStrikes)
@@ -126,6 +130,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     const [r, ...next] = unrevealedRanks
     setTimeout(() => {
       setAnswerGroups((prev) => prev.map((g) => (g.rank === r ? { ...g, revealed: true } : g)))
+      playSound(Sounds.Reveal)
       roundEndReveal(next, finalRoundScore, finalStrikes)
     }, REVEAL_INTERVAL_MS)
   }
@@ -134,7 +139,9 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
     () => {
       if (timeRemaining > 0) {
         setTimeRemaining((prev) => prev - 1)
+        playSound(Sounds.Timer)
       } else {
+        setTimerRunning(false)
         handleStrike()
       }
     },

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { MainMenu } from './screens/MainMenu'
 import { Options } from './screens/Options'
@@ -26,6 +26,7 @@ import {
   getModifiedRoundResult,
   getFinalScore,
 } from './lib/scoring'
+import { preloadSounds } from './lib/sound'
 import { MAX_HIGH_SCORES } from './lib/storage'
 
 const ROUNDS_PER_GAME = 4
@@ -56,6 +57,10 @@ function App() {
     bonusScore: 0,
     averageScore: 0,
   })
+
+  useEffect(() => {
+    preloadSounds()
+  }, [])
 
   async function startGame(household: Household) {
     try {
