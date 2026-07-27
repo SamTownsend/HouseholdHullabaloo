@@ -1,17 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useInterval } from '../hooks/useInterval'
 import styles from './QuestionText.module.css'
 
 interface Props {
   text: string
   revealIntervalMs: number
+  initialDelayMs?: number
   onRevealComplete?: () => void
 }
 
-export function QuestionText({ text, revealIntervalMs, onRevealComplete }: Props) {
+export function QuestionText({
+  text,
+  revealIntervalMs,
+  initialDelayMs = 0,
+  onRevealComplete,
+}: Props) {
   const totalChars = Math.max(text.length, 1)
   const [visibleCharCount, setVisibleCharCount] = useState(0)
-  const revealing = visibleCharCount < totalChars
+  const [delayElapsed, setDelayElapsed] = useState(initialDelayMs === 0)
+
+  useEffect(() => {
+    if (initialDelayMs === 0) {
+      return
+    }
+
+    const id = setTimeout(() => setDelayElapsed(true), initialDelayMs)
+    return () => clearTimeout(id)
+  }, [initialDelayMs])
+
+  const revealing = delayElapsed && visibleCharCount < totalChars
 
   useInterval(
     () => {

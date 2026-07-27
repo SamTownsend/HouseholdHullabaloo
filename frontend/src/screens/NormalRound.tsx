@@ -15,6 +15,7 @@ import {
 } from '../types'
 import styles from './NormalRound.module.css'
 
+const ROUND_INITIAL_DELAY_MS = 1000
 const QUESTION_REVEAL_INTERVAL_MS = 50
 const SURVEY_SAYS_DELAY_MS = 1500
 const POST_ANSWER_DELAY_MS = 2000
@@ -147,6 +148,7 @@ export function NormalRound({ session, question, onRoundEnd }: Props) {
         key={question._id}
         text={question.questionText}
         revealIntervalMs={QUESTION_REVEAL_INTERVAL_MS}
+        initialDelayMs={ROUND_INITIAL_DELAY_MS}
         onRevealComplete={() => setTimerRunning(true)}
       />
       <AnswerBoard answerGroups={answerGroups} />

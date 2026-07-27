@@ -11,9 +11,10 @@ import styles from './BonusRound.module.css'
 const QUESTION_REVEAL_INTERVAL_MS = 25
 const TIMER_SECONDS_BATCH1 = 60
 const TIMER_SECONDS_BATCH2 = 65
-const REVEAL_INTERVAL_MS = 4000
+const SCORE_REVEAL_INTERVAL_MS = 4000
+const NEXT_QUESTION_DELAY_MS = 1500
 const POST_BATCH_DELAY_MS = 2000
-const POST_TOP_ANSWERS_DELAY_MS = 3000
+const POST_TOP_ANSWERS_DELAY_MS = 4000
 
 interface Props {
   bonusQuestions: Question[]
@@ -54,15 +55,7 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
   const totalUnderBatch2 = phase === 'batch2_scoring'
   const showTopAnswers = phase === 'batch2_scoring'
   const showInputBanner = phase === 'batch1_answering' || phase === 'batch2_answering'
-
-  let displayedQuestion: Question | undefined
-  if (phase === 'batch1_scoring') {
-    displayedQuestion = questions[batch1ScoredUpTo]
-  } else if (phase === 'batch2_scoring') {
-    displayedQuestion = questions[revealedTopAnswers]
-  } else {
-    displayedQuestion = questions[currentQuestionIndex]
-  }
+  const displayedQuestion = questions[currentQuestionIndex]
 
   function endBatch(batch: BonusSlot[]) {
     setTimerRunning(false)
@@ -103,6 +96,7 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
     })
     setCurrentBatch(updatedBatch)
     setQuestions(updatedQuestions)
+    setCurrentQuestionIndex(0)
 
     const nextPhase: BonusPhase = phase === 'batch1_answering' ? 'batch1_scoring' : 'batch2_scoring'
     setPhase(nextPhase)
@@ -142,58 +136,69 @@ export function BonusRound({ bonusQuestions, onBonusRoundEnd }: Props) {
     timerRunning ? 1000 : null
   )
 
+  // The interval needs to be adjusted based on whether or not the lingering question text effect was used
+  const scoringInterval =
+    phase === 'batch1_scoring'
+      ? batch1ScoredUpTo > 0
+        ? SCORE_REVEAL_INTERVAL_MS + NEXT_QUESTION_DELAY_MS
+        : SCORE_REVEAL_INTERVAL_MS
+      : phase === 'batch2_scoring'
+        ? revealedTopAnswers > 0 && batch2ScoredUpTo === revealedTopAnswers
+          ? SCORE_REVEAL_INTERVAL_MS + NEXT_QUESTION_DELAY_MS
+          : SCORE_REVEAL_INTERVAL_MS
+        : null
+
   // Interval for scoring each answer and revealing top answers
-  useInterval(
-    () => {
-      if (phase === 'batch1_scoring') {
-        if (batch1ScoredUpTo >= questionCount) {
+  useInterval(() => {
+    if (phase === 'batch1_scoring') {
+      if (batch1ScoredUpTo >= questionCount) {
+        return
+      }
+
+      const updatedTotal = total + (batch1[batch1ScoredUpTo].pointValue ?? 0)
+      const next = batch1ScoredUpTo + 1
+      setTotal(updatedTotal)
+      setBatch1ScoredUpTo(next)
+      setTimeout(() => setCurrentQuestionIndex(next), NEXT_QUESTION_DELAY_MS)
+
+      // Continue to the next batch
+      if (next >= questionCount) {
+        setTimeout(() => {
+          setCurrentQuestionIndex(0)
+          setTimeRemaining(TIMER_SECONDS_BATCH2)
+          setTimerRunning(true)
+          setPhase('batch2_answering')
+        }, POST_BATCH_DELAY_MS)
+      }
+    } else if (phase === 'batch2_scoring') {
+      // Reveal next score
+      if (batch2ScoredUpTo === revealedTopAnswers) {
+        if (batch2ScoredUpTo >= questionCount) {
           return
         }
 
-        const updatedTotal = total + (batch1[batch1ScoredUpTo].pointValue ?? 0)
-        const next = batch1ScoredUpTo + 1
+        const updatedTotal = total + (batch2[batch2ScoredUpTo].pointValue ?? 0)
+        const next = batch2ScoredUpTo + 1
         setTotal(updatedTotal)
-        setBatch1ScoredUpTo(next)
-
-        // Continue to the next batch
+        setBatch2ScoredUpTo(next)
+      }
+      // Reveal next top answer
+      else {
+        const next = revealedTopAnswers + 1
+        setRevealedTopAnswers(next)
+        setTimeout(() => setCurrentQuestionIndex(next), NEXT_QUESTION_DELAY_MS)
         if (next >= questionCount) {
-          setTimeout(() => {
-            setCurrentQuestionIndex(0)
-            setTimeRemaining(TIMER_SECONDS_BATCH2)
-            setTimerRunning(true)
-            setPhase('batch2_answering')
-          }, POST_BATCH_DELAY_MS)
-        }
-      } else if (phase === 'batch2_scoring') {
-        // Reveal next score
-        if (batch2ScoredUpTo === revealedTopAnswers) {
-          if (batch2ScoredUpTo >= questionCount) {
-            return
-          }
-
-          const updatedTotal = total + (batch2[batch2ScoredUpTo].pointValue ?? 0)
-          const next = batch2ScoredUpTo + 1
-          setTotal(updatedTotal)
-          setBatch2ScoredUpTo(next)
-        }
-        // Reveal next top answer
-        else {
-          const next = revealedTopAnswers + 1
-          setRevealedTopAnswers(next)
-          if (next >= questionCount) {
-            setTimeout(() => onBonusRoundEnd(total), POST_TOP_ANSWERS_DELAY_MS)
-          }
+          setTimeout(() => onBonusRoundEnd(total), POST_TOP_ANSWERS_DELAY_MS)
         }
       }
-    },
-    phase === 'batch1_scoring' || phase === 'batch2_scoring' ? REVEAL_INTERVAL_MS : null
-  )
+    }
+  }, scoringInterval)
 
   return (
     <div className={styles.screen}>
       <div className={styles.questionWrapper}>
         <QuestionText
-          key={displayedQuestion?._id ?? 'pending'}
+          key={currentQuestionIndex}
           text={displayedQuestion?.questionText ?? ''}
           revealIntervalMs={QUESTION_REVEAL_INTERVAL_MS}
         />
