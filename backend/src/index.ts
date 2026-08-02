@@ -1,11 +1,12 @@
 import express, { type Request, type Response, type NextFunction } from 'express'
 import cors from 'cors'
 import { connectToDatabase, getDb } from './db.js'
-import type { Document } from 'mongodb'
-import type { QuestionDocument, GameResponse } from './types.js'
+import { getGameResponse } from './questionSelection.js'
+import type { QuestionDocument, QuestionPackConfig } from './types.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const DEFAULT_PLAYER_ID = 'anonymous-player'
 
 app.use(express.json())
 
@@ -14,63 +15,27 @@ app.use(cors({ origin: corsOrigin }))
 
 app.get('/api/questions/normal-game', async (req: Request, res: Response) => {
   const countParam = parseInt(req.query.count as string)
-  const count = isNaN(countParam) || countParam < 1 ? 5 : Math.min(countParam, 20)
+  const count = isNaN(countParam) || countParam < 1 ? 4 : Math.min(countParam, 20)
 
   const bonusParam = parseInt(req.query.bonus as string)
-  const bonusCount = isNaN(bonusParam) ? 0 : Math.min(bonusParam, 20)
+  const bonusCount = isNaN(bonusParam) || bonusParam < 1 ? 5 : Math.min(bonusParam, 20)
 
-  const validPackIds: number[] = []
+  const playerId = (req.query.playerId as string | undefined) ?? DEFAULT_PLAYER_ID
+
+  const packConfigs: QuestionPackConfig[] = []
   const packsParam = req.query.packs as string | undefined
   if (packsParam) {
     for (const pack of packsParam.split(',')) {
-      const packId = parseInt(pack.split(':')[0] ?? '')
-      // offset is parsed here but reserved for future use
-      //const offset = parseInt(pack.split(':')[1] ?? '')
-
+      const [packIdStr, offsetStr] = pack.split(':')
+      const packId = parseInt(packIdStr ?? '')
+      const offset = parseInt(offsetStr ?? '')
       if (!isNaN(packId)) {
-        validPackIds.push(packId)
+        packConfigs.push({ id: packId, offset: isNaN(offset) ? 0 : offset })
       }
     }
   }
 
-  const db = getDb()
-  const pipeline: Document[] = []
-  const matchFilter: Record<string, unknown> = {}
-
-  if (validPackIds.length > 0) {
-    matchFilter.questionPack = { $in: validPackIds }
-    pipeline.push({ $match: matchFilter })
-  }
-  pipeline.push({ $sample: { size: count } })
-
-  const questions = await db
-    .collection<QuestionDocument>('questions')
-    .aggregate<QuestionDocument>(pipeline)
-    .toArray()
-
-  /*
-  // TODO make a more proper endpoint / debug tool for testing specific questions
-  const debugQuestion = await db.collection<QuestionDocument>('questions').findOne({ _id: 7085 })
-  if (debugQuestion) questions[0] = debugQuestion
-  */
-
-  const game: GameResponse = {
-    questions,
-    bonusQuestions: [],
-  }
-
-  // Retrieve a separate batch of bonus round eligible questions, while avoiding duplicates
-  if (bonusCount > 0) {
-    const questionIds = questions.map((q) => q._id)
-    matchFilter._id = { $nin: questionIds }
-    matchFilter.bonusEligible = true
-
-    game.bonusQuestions = await db
-      .collection<QuestionDocument>('questions')
-      .aggregate<QuestionDocument>([{ $match: matchFilter }, { $sample: { size: bonusCount } }])
-      .toArray()
-  }
-
+  const game = await getGameResponse(playerId, packConfigs, count, bonusCount)
   res.json(game)
 })
 

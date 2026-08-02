@@ -1,3 +1,8 @@
+export interface QuestionPackConfig {
+  id: number
+  offset: number
+}
+
 export interface AnswerDocument {
   matchType: number
   answerText: string
@@ -22,4 +27,5 @@ export interface QuestionDocument {
 export interface GameResponse {
   questions: QuestionDocument[]
   bonusQuestions: QuestionDocument[]
+  updatedPackConfigs: QuestionPackConfig[]
 }

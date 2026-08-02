@@ -1,35 +1,33 @@
 import { useState } from 'react'
 import {
   APP_STORAGE_KEY,
-  DEFAULT_APP_STORAGE,
   migrateStorage,
   type AppStorage,
+  type AppStorageUpdate,
 } from '../lib/storage'
 
-export function useLocalStorage(): [AppStorage, (value: AppStorage) => void] {
+export function useLocalStorage(): [AppStorage, (update: AppStorageUpdate) => void] {
   const [storedValue, setStoredValue] = useState<AppStorage>(() => {
     try {
       const item = localStorage.getItem(APP_STORAGE_KEY)
-      if (item === null) {
-        return DEFAULT_APP_STORAGE
-      }
-
-      const migrated = migrateStorage(JSON.parse(item))
+      const migrated = migrateStorage(item === null ? null : JSON.parse(item))
       localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(migrated))
-
       return migrated
     } catch {
-      return DEFAULT_APP_STORAGE
+      return migrateStorage(null)
     }
   })
 
-  function setValue(value: AppStorage) {
-    try {
-      setStoredValue(value)
-      localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(value))
-    } catch (error) {
-      console.error(`useLocalStorage: failed to write app storage`, error)
-    }
+  function setValue(update: AppStorageUpdate) {
+    setStoredValue((prev) => {
+      const next = typeof update === 'function' ? update(prev) : update
+      try {
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(next))
+      } catch (error) {
+        console.error(`useLocalStorage: failed to write app storage`, error)
+      }
+      return next
+    })
   }
 
   return [storedValue, setValue]

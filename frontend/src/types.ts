@@ -48,7 +48,7 @@ export interface Household {
 }
 
 export interface QuestionPackConfig {
-  questionPack: number
+  id: number
   enabled: boolean
   offset: number
 }
@@ -99,10 +99,13 @@ export type Screens = (typeof Screens)[keyof typeof Screens]
 
 // API types
 export type AnswerGroupDocument = Omit<AnswerGroup, 'rank' | 'revealed'>
+
 export type QuestionDocument = Omit<Question, 'answerGroups'> & {
   answerGroups: AnswerGroupDocument[]
 }
+
 export interface GameResponse {
   questions: QuestionDocument[]
   bonusQuestions: QuestionDocument[]
+  updatedPackConfigs: QuestionPackConfig[]
 }

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { Household } from '../types'
-import { MAX_HOUSEHOLDS, type AppStorage } from '../lib/storage'
+import { MAX_HOUSEHOLDS, type AppStorage, type AppStorageUpdate } from '../lib/storage'
 import { GameTitle } from '../components/GameTitle'
 import styles from './HouseholdSelect.module.css'
 
 interface Props {
   appStorage: AppStorage
-  setAppStorage: (value: AppStorage) => void
+  setAppStorage: (update: AppStorageUpdate) => void
   onStartGame: (household: Household) => void
 }
 
@@ -29,18 +29,19 @@ export function HouseholdSelect({ appStorage, setAppStorage, onStartGame }: Prop
       // If the typed name is already in the list, use the existing entry
       const existing = appStorage.households.find((h) => h.name === newName)
       if (existing) {
-        const updatedHouseholds = [
-          existing,
-          ...appStorage.households.filter((h) => h.name !== newName),
-        ]
-        setAppStorage({ ...appStorage, households: updatedHouseholds })
+        setAppStorage((prev) => ({
+          ...prev,
+          households: [existing, ...prev.households.filter((h) => h.name !== newName)],
+        }))
         onStartGame(existing)
       }
       // Otherwise, create and save a new household object
       else {
         const household: Household = { name: newName, gamesPlayed: 0, lifetimeScore: 0 }
-        const updatedHouseholds = [household, ...appStorage.households].slice(0, MAX_HOUSEHOLDS)
-        setAppStorage({ ...appStorage, households: updatedHouseholds })
+        setAppStorage((prev) => ({
+          ...prev,
+          households: [household, ...prev.households].slice(0, MAX_HOUSEHOLDS),
+        }))
         onStartGame(household)
       }
     }
@@ -48,11 +49,10 @@ export function HouseholdSelect({ appStorage, setAppStorage, onStartGame }: Prop
     else {
       const existing = appStorage.households.find((h) => h.name === selectedHousehold)
       if (existing) {
-        const updatedHouseholds = [
-          existing,
-          ...appStorage.households.filter((h) => h.name !== selectedHousehold),
-        ]
-        setAppStorage({ ...appStorage, households: updatedHouseholds })
+        setAppStorage((prev) => ({
+          ...prev,
+          households: [existing, ...prev.households.filter((h) => h.name !== selectedHousehold)],
+        }))
         onStartGame(existing)
       }
     }

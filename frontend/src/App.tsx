@@ -65,13 +65,23 @@ function App() {
   async function startGame(household: Household) {
     try {
       const enabledPacks = appStorage.packConfigs.filter((p) => p.enabled)
-      const packConfig = enabledPacks.map((p) => `${p.questionPack}:${p.offset}`).join(',')
+      const packConfig = enabledPacks.map((p) => `${p.id}:${p.offset}`).join(',')
+      const playerId = encodeURIComponent(appStorage.playerId)
 
       const res = await fetch(
-        `/api/questions/normal-game?count=${ROUNDS_PER_GAME}&bonus=${BONUS_ROUND_QUESTIONS}&packs=${packConfig}`
+        `/api/questions/normal-game?count=${ROUNDS_PER_GAME}&bonus=${BONUS_ROUND_QUESTIONS}&packs=${packConfig}&playerId=${playerId}`
       )
       const fetched: GameResponse = await res.json()
       devLog(fetched)
+
+      // Merge the updated question pack offsets back into local storage
+      setAppStorage((prev) => ({
+        ...prev,
+        packConfigs: prev.packConfigs.map((p) => {
+          const updated = fetched.updatedPackConfigs.find((u) => u.id === p.id)
+          return updated ? { ...p, offset: updated.offset } : p
+        }),
+      }))
 
       setSession({
         household,
@@ -98,22 +108,25 @@ function App() {
   function handleGameEnd(score: number, bonusScore: number) {
     const finalScore = getFinalScore(score, bonusScore)
     const newEntry = { name: session.household.name, score: finalScore }
-    const updatedHighScores = [...appStorage.highScores, newEntry]
-      .sort((a, b) => b.score - a.score)
-      .slice(0, MAX_HIGH_SCORES)
 
-    const updatedHouseholds = appStorage.households.map((h) =>
-      h.name === session.household.name
-        ? { ...h, gamesPlayed: h.gamesPlayed + 1, lifetimeScore: h.lifetimeScore + finalScore }
-        : h
-    )
+    setAppStorage((prev) => {
+      const updatedHighScores = [...prev.highScores, newEntry]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, MAX_HIGH_SCORES)
 
-    setAppStorage({
-      ...appStorage,
-      highScores: updatedHighScores,
-      gamesPlayed: appStorage.gamesPlayed + 1,
-      lifetimeScore: appStorage.lifetimeScore + finalScore,
-      households: updatedHouseholds,
+      const updatedHouseholds = prev.households.map((h) =>
+        h.name === session.household.name
+          ? { ...h, gamesPlayed: h.gamesPlayed + 1, lifetimeScore: h.lifetimeScore + finalScore }
+          : h
+      )
+
+      return {
+        ...prev,
+        highScores: updatedHighScores,
+        gamesPlayed: prev.gamesPlayed + 1,
+        lifetimeScore: prev.lifetimeScore + finalScore,
+        households: updatedHouseholds,
+      }
     })
 
     setCurrentScreen(Screens.EndGame)
